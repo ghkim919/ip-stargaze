@@ -1,12 +1,6 @@
 import { classifyIp, getSubnetKey } from './ipClassifier.js';
 import config from '../config.js';
-
-const WINDOW_DURATIONS_MS = {
-  '1m': 60_000,
-  '5m': 300_000,
-  '15m': 900_000,
-  '1h': 3_600_000,
-};
+import { WINDOW_DURATIONS_MS, SUBNET_PARENT_MAP, AGGREGATOR_DEFAULTS } from '../config/constants.js';
 
 export default class Aggregator {
   #events = [];
@@ -73,8 +67,7 @@ export default class Aggregator {
     const windowSec = windowMs / 1000;
     const level = this.#subnetLevel;
 
-    const PARENT_LEVEL = { '/24': '/16', '/16': '/8' };
-    const parentLevel = PARENT_LEVEL[level] || null;
+    const parentLevel = SUBNET_PARENT_MAP[level] || null;
 
     const subnetMap = new Map();
     const globalUniqueIps = new Set();
@@ -157,7 +150,7 @@ export default class Aggregator {
       });
     }
 
-    const topSubnets = subnets.slice(0, 5).map((s) => ({
+    const topSubnets = subnets.slice(0, AGGREGATOR_DEFAULTS.TOP_SUBNETS_COUNT).map((s) => ({
       network: s.network,
       count: s.count,
       percentage: totalPackets > 0 ? parseFloat(((s.count / totalPackets) * 100).toFixed(1)) : 0,

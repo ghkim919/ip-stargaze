@@ -25,6 +25,12 @@ await fastify.register(fastifyStatic, {
   prefix: '/',
 });
 
+await fastify.register(fastifyStatic, {
+  root: join(__dirname, '..', 'shared'),
+  prefix: '/shared/',
+  decorateReply: false,
+});
+
 await fastify.register(fastifyWebSocket);
 wsHandler.register(fastify);
 

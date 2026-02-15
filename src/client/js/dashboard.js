@@ -1,6 +1,5 @@
 import { formatNumber, formatPps, subnetAbbrev } from './utils.js';
-
-const COUNTER_DURATION = 400;
+import { VISUAL_CONFIG } from './config.js';
 
 const state = {
   totalPackets: 0,
@@ -29,7 +28,7 @@ function animateValue(elementId, startVal, endVal, formatter) {
 
   function step(now) {
     const elapsed = now - startTime;
-    const progress = Math.min(elapsed / COUNTER_DURATION, 1);
+    const progress = Math.min(elapsed / VISUAL_CONFIG.COUNTER_DURATION, 1);
     const eased = 1 - Math.pow(1 - progress, 3);
     const current = startVal + (endVal - startVal) * eased;
     el.textContent = formatter(Math.round(current));

@@ -1,3 +1,5 @@
+import { AGGREGATOR_DEFAULTS } from './config/constants.js';
+
 const config = {
   mode: process.env.MODE || 'simulation',
   port: parseInt(process.env.PORT, 10) || 15118,
@@ -7,8 +9,8 @@ const config = {
   defaultWindow: '5m',
   defaultSubnetLevel: '/16',
   defaultScenario: 'normal',
-  snapshotIntervalMs: 1000,
-  maxSubnetsInSnapshot: 30,
+  snapshotIntervalMs: AGGREGATOR_DEFAULTS.SNAPSHOT_INTERVAL_MS,
+  maxSubnetsInSnapshot: AGGREGATOR_DEFAULTS.MAX_SUBNETS_IN_SNAPSHOT,
   validWindows: ['1m', '5m', '15m', '1h'],
   validSubnetLevels: ['/8', '/16', '/24'],
   validScenarios: ['normal', 'attack', 'scan'],

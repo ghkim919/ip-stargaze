@@ -1,4 +1,7 @@
 import config from '../config.js';
+import { VALIDATION_RULES } from '../config/constants.js';
+import { MESSAGE_TYPES, ERROR_MESSAGES } from '../../shared/protocol.js';
+import { validateWindow, validateSubnetLevel, validateScenario, validateEPS, parseEPS } from './messageValidator.js';
 
 export default class WsHandler {
   #clients = new Set();
@@ -27,7 +30,7 @@ export default class WsHandler {
     this.#sendConfig(socket);
 
     const initialSnapshot = this.#aggregator.buildSnapshot();
-    this.#send(socket, { type: 'snapshot', data: initialSnapshot });
+    this.#send(socket, { type: MESSAGE_TYPES.SNAPSHOT, data: initialSnapshot });
 
     socket.on('message', (raw) => {
       this.#handleMessage(socket, raw);
@@ -49,51 +52,49 @@ export default class WsHandler {
     try {
       msg = JSON.parse(raw.toString());
     } catch {
-      this.#send(socket, { type: 'error', data: { message: 'Invalid JSON' } });
+      this.#send(socket, { type: MESSAGE_TYPES.ERROR, data: { message: ERROR_MESSAGES.INVALID_JSON } });
       return;
     }
 
     switch (msg.type) {
-      case 'setWindow':
-        if (config.validWindows.includes(msg.value)) {
+      case MESSAGE_TYPES.SET_WINDOW:
+        if (validateWindow(msg.value)) {
           this.#aggregator.setWindow(msg.value);
           this.#broadcastConfig();
         } else {
-          this.#send(socket, { type: 'error', data: { message: 'Invalid window value' } });
+          this.#send(socket, { type: MESSAGE_TYPES.ERROR, data: { message: ERROR_MESSAGES.INVALID_WINDOW } });
         }
         break;
 
-      case 'setSubnetLevel':
-        if (config.validSubnetLevels.includes(msg.value)) {
+      case MESSAGE_TYPES.SET_SUBNET_LEVEL:
+        if (validateSubnetLevel(msg.value)) {
           this.#aggregator.setSubnetLevel(msg.value);
           this.#broadcastConfig();
         } else {
-          this.#send(socket, { type: 'error', data: { message: 'Invalid subnet level' } });
+          this.#send(socket, { type: MESSAGE_TYPES.ERROR, data: { message: ERROR_MESSAGES.INVALID_SUBNET } });
         }
         break;
 
-      case 'setScenario':
-        if (config.validScenarios.includes(msg.value)) {
+      case MESSAGE_TYPES.SET_SCENARIO:
+        if (validateScenario(msg.value)) {
           this.#captureManager.setScenario(msg.value);
           this.#broadcastConfig();
         } else {
-          this.#send(socket, { type: 'error', data: { message: 'Invalid scenario' } });
+          this.#send(socket, { type: MESSAGE_TYPES.ERROR, data: { message: ERROR_MESSAGES.INVALID_SCENARIO } });
         }
         break;
 
-      case 'setEventsPerSecond': {
-        const eps = parseInt(msg.value, 10);
-        if (eps >= 1 && eps <= 1000) {
-          this.#captureManager.setEventsPerSecond(eps);
+      case MESSAGE_TYPES.SET_EVENTS_PER_SECOND:
+        if (validateEPS(msg.value)) {
+          this.#captureManager.setEventsPerSecond(parseEPS(msg.value));
           this.#broadcastConfig();
         } else {
-          this.#send(socket, { type: 'error', data: { message: 'EPS must be between 1 and 1000' } });
+          this.#send(socket, { type: MESSAGE_TYPES.ERROR, data: { message: ERROR_MESSAGES.INVALID_EPS(VALIDATION_RULES.EPS_MIN, VALIDATION_RULES.EPS_MAX) } });
         }
         break;
-      }
 
       default:
-        this.#send(socket, { type: 'error', data: { message: `Unknown message type: ${msg.type}` } });
+        this.#send(socket, { type: MESSAGE_TYPES.ERROR, data: { message: ERROR_MESSAGES.UNKNOWN_TYPE(msg.type) } });
     }
   }
 
@@ -109,11 +110,11 @@ export default class WsHandler {
   }
 
   #sendConfig(socket) {
-    this.#send(socket, { type: 'config', data: this.#buildConfigPayload() });
+    this.#send(socket, { type: MESSAGE_TYPES.CONFIG, data: this.#buildConfigPayload() });
   }
 
   #broadcastConfig() {
-    this.broadcast({ type: 'config', data: this.#buildConfigPayload() });
+    this.broadcast({ type: MESSAGE_TYPES.CONFIG, data: this.#buildConfigPayload() });
   }
 
   broadcast(message) {

@@ -1,9 +1,9 @@
 import * as starGraph from './starGraph.js';
 import * as dashboard from './dashboard.js';
 import * as detailPanel from './detailPanel.js';
-
-const MAX_RECONNECT_ATTEMPTS = 5;
-const BASE_RECONNECT_DELAY = 3000;
+import { WEBSOCKET_CONFIG } from './config.js';
+import { MESSAGE_TYPES } from '/shared/protocol.js';
+import { isLiveMode } from './helpers/modeHelpers.js';
 
 let ws = null;
 let reconnectAttempts = 0;
@@ -59,13 +59,13 @@ function connect() {
 
 function scheduleReconnect() {
   if (reconnectTimer) return;
-  if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+  if (reconnectAttempts >= WEBSOCKET_CONFIG.MAX_RECONNECT_ATTEMPTS) {
     dashboard.setConnectionStatus('disconnected');
     return;
   }
 
   reconnectAttempts++;
-  const delay = BASE_RECONNECT_DELAY * Math.pow(1.5, reconnectAttempts - 1);
+  const delay = WEBSOCKET_CONFIG.BASE_RECONNECT_DELAY * Math.pow(WEBSOCKET_CONFIG.RECONNECT_BACKOFF, reconnectAttempts - 1);
   dashboard.setConnectionStatus('reconnecting');
 
   reconnectTimer = setTimeout(() => {
@@ -82,13 +82,13 @@ function send(msg) {
 
 function handleMessage(msg) {
   switch (msg.type) {
-    case 'snapshot':
+    case MESSAGE_TYPES.SNAPSHOT:
       try { starGraph.update(msg.data); } catch (e) { console.error('[starGraph]', e); }
       try { dashboard.update(msg.data); } catch (e) { console.error('[dashboard]', e); }
       try { detailPanel.update(msg.data); } catch (e) { console.error('[detailPanel]', e); }
       break;
 
-    case 'config':
+    case MESSAGE_TYPES.CONFIG:
       applyConfig(msg.data);
       break;
   }
@@ -99,13 +99,13 @@ function applyConfig(config) {
 
   const modeEl = document.getElementById('mode-badge');
   if (modeEl) {
-    const isLive = config.mode === 'live' || config.mode === 'capture';
-    modeEl.textContent = isLive ? 'LIVE' : 'SIMULATION';
-    modeEl.className = 'mode-badge ' + (isLive ? 'mode-live' : 'mode-sim');
+    const live = isLiveMode(config);
+    modeEl.textContent = live ? 'LIVE' : 'SIMULATION';
+    modeEl.className = 'mode-badge ' + (live ? 'mode-live' : 'mode-sim');
 
     const scenarioSelect = document.getElementById('scenario-select');
     if (scenarioSelect) {
-      scenarioSelect.disabled = isLive;
+      scenarioSelect.disabled = live;
     }
   }
 
@@ -138,10 +138,10 @@ function applyConfig(config) {
 
   const epsControl = document.getElementById('eps-control');
   if (epsControl) {
-    const isLive = config.mode === 'live' || config.mode === 'capture';
+    const live = isLiveMode(config);
     const epsSlider = document.getElementById('eps-slider');
-    if (epsSlider) epsSlider.disabled = isLive;
-    epsControl.style.opacity = isLive ? '0.4' : '1';
+    if (epsSlider) epsSlider.disabled = live;
+    epsControl.style.opacity = live ? '0.4' : '1';
   }
 }
 
@@ -155,7 +155,7 @@ function initControls() {
   const windowSelect = document.getElementById('window-select');
   if (windowSelect) {
     windowSelect.addEventListener('change', () => {
-      send({ type: 'setWindow', value: windowSelect.value });
+      send({ type: MESSAGE_TYPES.SET_WINDOW, value: windowSelect.value });
     });
   }
 
@@ -163,14 +163,14 @@ function initControls() {
     btn.addEventListener('click', () => {
       const level = btn.dataset.level;
       setActiveSubnetButton(level);
-      send({ type: 'setSubnetLevel', value: level });
+      send({ type: MESSAGE_TYPES.SET_SUBNET_LEVEL, value: level });
     });
   });
 
   const scenarioSelect = document.getElementById('scenario-select');
   if (scenarioSelect) {
     scenarioSelect.addEventListener('change', () => {
-      send({ type: 'setScenario', value: scenarioSelect.value });
+      send({ type: MESSAGE_TYPES.SET_SCENARIO, value: scenarioSelect.value });
     });
   }
 
@@ -181,7 +181,7 @@ function initControls() {
       epsValue.textContent = epsSlider.value;
     });
     epsSlider.addEventListener('change', () => {
-      send({ type: 'setEventsPerSecond', value: epsSlider.value });
+      send({ type: MESSAGE_TYPES.SET_EVENTS_PER_SECOND, value: epsSlider.value });
     });
   }
 
