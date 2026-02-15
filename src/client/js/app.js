@@ -126,6 +126,23 @@ function applyConfig(config) {
   if (config.iface) {
     starGraph.setIface(config.iface);
   }
+
+  if (config.eventsPerSecond) {
+    const epsSlider = document.getElementById('eps-slider');
+    const epsValue = document.getElementById('eps-value');
+    if (epsSlider) {
+      epsSlider.value = config.eventsPerSecond;
+      epsValue.textContent = config.eventsPerSecond;
+    }
+  }
+
+  const epsControl = document.getElementById('eps-control');
+  if (epsControl) {
+    const isLive = config.mode === 'live' || config.mode === 'capture';
+    const epsSlider = document.getElementById('eps-slider');
+    if (epsSlider) epsSlider.disabled = isLive;
+    epsControl.style.opacity = isLive ? '0.4' : '1';
+  }
 }
 
 function setActiveSubnetButton(level) {
@@ -154,6 +171,28 @@ function initControls() {
   if (scenarioSelect) {
     scenarioSelect.addEventListener('change', () => {
       send({ type: 'setScenario', value: scenarioSelect.value });
+    });
+  }
+
+  const epsSlider = document.getElementById('eps-slider');
+  const epsValue = document.getElementById('eps-value');
+  if (epsSlider) {
+    epsSlider.addEventListener('input', () => {
+      epsValue.textContent = epsSlider.value;
+    });
+    epsSlider.addEventListener('change', () => {
+      send({ type: 'setEventsPerSecond', value: epsSlider.value });
+    });
+  }
+
+  const ppsThresholdSlider = document.getElementById('pps-threshold-slider');
+  const ppsThresholdValue = document.getElementById('pps-threshold-value');
+  if (ppsThresholdSlider) {
+    ppsThresholdSlider.addEventListener('input', () => {
+      ppsThresholdValue.textContent = ppsThresholdSlider.value;
+    });
+    ppsThresholdSlider.addEventListener('change', () => {
+      starGraph.setPpsThreshold(parseInt(ppsThresholdSlider.value, 10));
     });
   }
 }

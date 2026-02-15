@@ -42,6 +42,18 @@
           </select>
         </div>
 
+        <div class="control-group" id="eps-control">
+          <span class="control-label">EPS</span>
+          <input type="range" id="eps-slider" min="1" max="500" value="10" step="1">
+          <span class="eps-value" id="eps-value">10</span>
+        </div>
+
+        <div class="control-group">
+          <span class="control-label">Alert PPS</span>
+          <input type="range" id="pps-threshold-slider" min="1" max="100" value="10" step="1">
+          <span class="eps-value" id="pps-threshold-value">10</span>
+        </div>
+
         <div class="conn-indicator">
           <span class="conn-dot conn-disconnected" id="conn-dot"></span>
           <span id="conn-text">Disconnected</span>

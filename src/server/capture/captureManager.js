@@ -80,4 +80,8 @@ export default class CaptureManager extends EventEmitter {
   get scenario() {
     return this.#source?.scenario ?? 'normal';
   }
+
+  get eventsPerSecond() {
+    return this.#source?.eventsPerSecond ?? config.eventsPerSecond;
+  }
 }

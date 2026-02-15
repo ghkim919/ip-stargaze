@@ -81,6 +81,17 @@ export default class WsHandler {
         }
         break;
 
+      case 'setEventsPerSecond': {
+        const eps = parseInt(msg.value, 10);
+        if (eps >= 1 && eps <= 1000) {
+          this.#captureManager.setEventsPerSecond(eps);
+          this.#broadcastConfig();
+        } else {
+          this.#send(socket, { type: 'error', data: { message: 'EPS must be between 1 and 1000' } });
+        }
+        break;
+      }
+
       default:
         this.#send(socket, { type: 'error', data: { message: `Unknown message type: ${msg.type}` } });
     }
@@ -93,6 +104,7 @@ export default class WsHandler {
       subnetLevel: this.#aggregator.subnetLevel,
       scenario: this.#captureManager.scenario,
       iface: config.interface,
+      eventsPerSecond: this.#captureManager.eventsPerSecond,
     };
   }
 

@@ -73,6 +73,9 @@ export default class Aggregator {
     const windowSec = windowMs / 1000;
     const level = this.#subnetLevel;
 
+    const PARENT_LEVEL = { '/24': '/16', '/16': '/8' };
+    const parentLevel = PARENT_LEVEL[level] || null;
+
     const subnetMap = new Map();
     const globalUniqueIps = new Set();
 
@@ -85,9 +88,11 @@ export default class Aggregator {
 
       let bucket = subnetMap.get(network);
       if (!bucket) {
+        const parentInfo = parentLevel ? event.classification.subnets[parentLevel] : null;
         bucket = {
           network,
           label: subnetInfo.label,
+          parentNetwork: parentInfo ? parentInfo.network : null,
           count: 0,
           uniqueIps: new Set(),
           bytes: 0,
@@ -110,6 +115,7 @@ export default class Aggregator {
     let subnets = Array.from(subnetMap.values())
       .map((b) => ({
         network: b.network,
+        parentNetwork: b.parentNetwork,
         label: b.label,
         count: b.count,
         uniqueIps: b.uniqueIps.size,
@@ -141,6 +147,7 @@ export default class Aggregator {
 
       subnets.push({
         network: 'Others',
+        parentNetwork: null,
         label: null,
         count: othersCount,
         uniqueIps: othersUniqueIps.size,
