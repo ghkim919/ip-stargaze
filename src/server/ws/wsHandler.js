@@ -93,6 +93,14 @@ export default class WsHandler {
         }
         break;
 
+      case MESSAGE_TYPES.GET_SUBNET_DETAIL: {
+        const detail = this.#aggregator.buildSubnetDetail(msg.value);
+        if (detail) {
+          this.#send(socket, { type: MESSAGE_TYPES.SUBNET_DETAIL, data: detail });
+        }
+        break;
+      }
+
       default:
         this.#send(socket, { type: MESSAGE_TYPES.ERROR, data: { message: ERROR_MESSAGES.UNKNOWN_TYPE(msg.type) } });
     }

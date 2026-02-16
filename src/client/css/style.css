@@ -16,6 +16,9 @@
   --status-disconnected: #f87171;
   --badge-simulation: #fb923c;
   --badge-live: #34d399;
+  --proto-tcp: #4a9eff;
+  --proto-udp: #34d399;
+  --proto-icmp: #fbbf24;
   --radius: 8px;
   --transition: 200ms ease;
 }
@@ -495,6 +498,282 @@ input[type="range"]:disabled {
   font-weight: 600;
   font-size: 14px;
   font-variant-numeric: tabular-nums;
+}
+
+/* ===== Detail Panel Sections ===== */
+.detail-section-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 16px 0 12px;
+}
+
+.detail-section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.detail-section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-section-count {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Protocol Distribution Bar */
+.detail-protocol-bar {
+  display: flex;
+  height: 22px;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.protocol-segment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  transition: width 300ms ease;
+}
+
+.protocol-segment[data-narrow="true"] {
+  font-size: 0;
+}
+
+.protocol-segment.proto-tcp {
+  background: var(--proto-tcp);
+}
+
+.protocol-segment.proto-udp {
+  background: var(--proto-udp);
+}
+
+.protocol-segment.proto-icmp {
+  background: var(--proto-icmp);
+}
+
+.detail-protocol-legend {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.protocol-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.protocol-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* Top IPs List */
+.detail-ip-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.detail-ip-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.detail-ip-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.detail-ip-list::-webkit-scrollbar-thumb {
+  background: var(--border-glow);
+  border-radius: 2px;
+}
+
+.detail-ip-loading {
+  font-style: italic;
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 6px 8px;
+  text-align: center;
+}
+
+.detail-ip-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  position: relative;
+  border-radius: 4px;
+}
+
+.detail-ip-row:hover {
+  background: rgba(74, 158, 255, 0.04);
+}
+
+.detail-ip-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: var(--accent);
+  opacity: 0.08;
+  border-radius: 4px;
+  pointer-events: none;
+  transition: width 300ms ease;
+}
+
+.detail-ip-addr {
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 12px;
+  color: var(--text-primary);
+  flex: 1;
+  min-width: 0;
+  position: relative;
+}
+
+.detail-ip-count {
+  font-size: 12px;
+  color: var(--text-accent);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  position: relative;
+}
+
+.detail-ip-pct {
+  font-size: 11px;
+  color: var(--text-secondary);
+  min-width: 42px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  position: relative;
+}
+
+.detail-ip-more {
+  font-style: italic;
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 6px 8px;
+}
+
+/* Protocol Detail Cards */
+.proto-detail-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+
+.proto-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.proto-detail-name {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.proto-detail-count {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.proto-detail-stats {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.proto-detail-stat-label {
+  color: var(--text-secondary);
+}
+
+.proto-detail-stat-value {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.proto-port-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.proto-port-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+  font-size: 11px;
+}
+
+.proto-port-num {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: var(--text-accent);
+  min-width: 40px;
+  text-align: right;
+}
+
+.proto-port-label {
+  color: var(--text-secondary);
+  min-width: 64px;
+}
+
+.proto-port-count {
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  margin-left: auto;
+}
+
+.proto-port-pct {
+  color: var(--text-secondary);
+  min-width: 42px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Private/Public Badge */
+.detail-type-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.detail-type-badge.private {
+  background: rgba(74, 158, 255, 0.12);
+  color: var(--accent);
+  border: 1px solid rgba(74, 158, 255, 0.25);
+}
+
+.detail-type-badge.public {
+  background: rgba(251, 146, 60, 0.12);
+  color: var(--badge-simulation);
+  border: 1px solid rgba(251, 146, 60, 0.25);
 }
 
 /* ===== Responsive ===== */

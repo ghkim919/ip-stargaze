@@ -85,6 +85,18 @@ export function subnetAbbrev(network) {
   return `${octets[0]}.${octets[1]}.${octets[2]}.*`;
 }
 
+export function formatBytes(bytes) {
+  if (bytes == null || bytes === 0) return '0 B';
+  if (bytes >= 1_000_000) return (bytes / 1_000_000).toFixed(1) + ' MB';
+  if (bytes >= 1_000) return (bytes / 1_000).toFixed(1) + ' KB';
+  return bytes + ' B';
+}
+
+export function formatPercent(value, total) {
+  if (!total) return '0.0%';
+  return ((value / total) * 100).toFixed(1) + '%';
+}
+
 export function clearColorCache() {
   colorCache.clear();
 }

@@ -5,6 +5,8 @@ export const MSG = {
   SET_EPS: 'setEventsPerSecond',
   SET_EVENTS_PER_SECOND: 'setEventsPerSecond',
   SNAPSHOT: 'snapshot',
+  GET_SUBNET_DETAIL: 'getSubnetDetail',
+  SUBNET_DETAIL: 'subnetDetail',
   CONFIG: 'config',
   ERROR: 'error',
 };

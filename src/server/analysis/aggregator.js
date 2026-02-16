@@ -1,6 +1,6 @@
 import { classifyIp, getSubnetKey } from './ipClassifier.js';
 import config from '../config.js';
-import { WINDOW_DURATIONS_MS, SUBNET_PARENT_MAP, AGGREGATOR_DEFAULTS } from '../config/constants.js';
+import { WINDOW_DURATIONS_MS, SUBNET_PARENT_MAP, AGGREGATOR_DEFAULTS, PORT_LABELS } from '../config/constants.js';
 
 export default class Aggregator {
   #events = [];
@@ -90,6 +90,8 @@ export default class Aggregator {
           uniqueIps: new Set(),
           bytes: 0,
           isPrivate: event.classification.isPrivate,
+          ipStats: new Map(),
+          protocols: { TCP: 0, UDP: 0, ICMP: 0 },
         };
         subnetMap.set(network, bucket);
       }
@@ -97,6 +99,19 @@ export default class Aggregator {
       bucket.count++;
       bucket.uniqueIps.add(event.sourceIp);
       bucket.bytes += event.bytes || 0;
+
+      const ipStat = bucket.ipStats.get(event.sourceIp);
+      if (ipStat) {
+        ipStat.count++;
+        ipStat.bytes += event.bytes || 0;
+      } else {
+        bucket.ipStats.set(event.sourceIp, { count: 1, bytes: event.bytes || 0 });
+      }
+
+      const proto = event.protocol;
+      if (proto && bucket.protocols[proto] !== undefined) {
+        bucket.protocols[proto]++;
+      }
       if (subnetInfo.label && !bucket.label) {
         bucket.label = subnetInfo.label;
       }
@@ -105,17 +120,33 @@ export default class Aggregator {
     const totalPackets = this.#events.length;
     const totalPps = parseFloat((totalPackets / windowSec).toFixed(1));
 
+    const topIpsCount = AGGREGATOR_DEFAULTS.TOP_IPS_COUNT;
+
     let subnets = Array.from(subnetMap.values())
-      .map((b) => ({
-        network: b.network,
-        parentNetwork: b.parentNetwork,
-        label: b.label,
-        count: b.count,
-        uniqueIps: b.uniqueIps.size,
-        bytes: b.bytes,
-        pps: parseFloat((b.count / windowSec).toFixed(1)),
-        isPrivate: b.isPrivate,
-      }))
+      .map((b) => {
+        const topIps = Array.from(b.ipStats.entries())
+          .map(([ip, stat]) => ({
+            ip,
+            count: stat.count,
+            bytes: stat.bytes,
+            pps: parseFloat((stat.count / windowSec).toFixed(1)),
+          }))
+          .sort((a, c) => c.count - a.count)
+          .slice(0, topIpsCount);
+
+        return {
+          network: b.network,
+          parentNetwork: b.parentNetwork,
+          label: b.label,
+          count: b.count,
+          uniqueIps: b.uniqueIps.size,
+          bytes: b.bytes,
+          pps: parseFloat((b.count / windowSec).toFixed(1)),
+          isPrivate: b.isPrivate,
+          topIps,
+          protocols: { ...b.protocols },
+        };
+      })
       .sort((a, b) => b.count - a.count);
 
     let othersCount = 0;
@@ -147,6 +178,8 @@ export default class Aggregator {
         bytes: othersBytes,
         pps: parseFloat((othersCount / windowSec).toFixed(1)),
         isPrivate: false,
+        topIps: [],
+        protocols: {},
       });
     }
 
@@ -168,6 +201,92 @@ export default class Aggregator {
       },
       subnets,
     };
+  }
+
+  buildSubnetDetail(network) {
+    const now = Date.now();
+    this.#pruneExpired(now);
+
+    const windowMs = WINDOW_DURATIONS_MS[this.#window];
+    const windowSec = windowMs / 1000;
+    const level = this.#subnetLevel;
+
+    const ipMap = new Map();
+    const protoMap = new Map();
+    let matched = false;
+
+    for (const event of this.#events) {
+      const subnetInfo = event.classification.subnets[level];
+      if (!subnetInfo || subnetInfo.network !== network) continue;
+
+      matched = true;
+
+      const ip = event.sourceIp;
+      const ipStat = ipMap.get(ip);
+      if (ipStat) {
+        ipStat.count++;
+        ipStat.bytes += event.bytes || 0;
+      } else {
+        ipMap.set(ip, { count: 1, bytes: event.bytes || 0 });
+      }
+
+      const proto = event.protocol || 'OTHER';
+      let protoBucket = protoMap.get(proto);
+      if (!protoBucket) {
+        protoBucket = { count: 0, bytes: 0, ports: new Map() };
+        protoMap.set(proto, protoBucket);
+      }
+      protoBucket.count++;
+      protoBucket.bytes += event.bytes || 0;
+
+      if (proto !== 'ICMP' && event.destPort != null) {
+        const port = event.destPort;
+        protoBucket.ports.set(port, (protoBucket.ports.get(port) || 0) + 1);
+      }
+    }
+
+    if (!matched) return null;
+
+    const topPortsCount = AGGREGATOR_DEFAULTS.TOP_PORTS_COUNT;
+
+    const allIps = Array.from(ipMap.entries())
+      .map(([ip, stat]) => ({
+        ip,
+        count: stat.count,
+        bytes: stat.bytes,
+        pps: parseFloat((stat.count / windowSec).toFixed(1)),
+      }))
+      .sort((a, b) => b.count - a.count);
+
+    const protocolDetail = {};
+    for (const proto of ['TCP', 'UDP', 'ICMP']) {
+      const bucket = protoMap.get(proto);
+      if (!bucket) {
+        protocolDetail[proto] = { count: 0, bytes: 0, pps: 0, topPorts: [] };
+        continue;
+      }
+
+      let topPorts = [];
+      if (proto !== 'ICMP') {
+        topPorts = Array.from(bucket.ports.entries())
+          .map(([port, count]) => ({
+            port,
+            count,
+            label: PORT_LABELS[port] || null,
+          }))
+          .sort((a, b) => b.count - a.count)
+          .slice(0, topPortsCount);
+      }
+
+      protocolDetail[proto] = {
+        count: bucket.count,
+        bytes: bucket.bytes,
+        pps: parseFloat((bucket.count / windowSec).toFixed(1)),
+        topPorts,
+      };
+    }
+
+    return { network, allIps, protocolDetail };
   }
 
   startPeriodicSnapshot(callback) {

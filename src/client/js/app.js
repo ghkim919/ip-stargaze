@@ -86,6 +86,13 @@ function handleMessage(msg) {
       try { starGraph.update(msg.data); } catch (e) { console.error('[starGraph]', e); }
       try { dashboard.update(msg.data); } catch (e) { console.error('[dashboard]', e); }
       try { detailPanel.update(msg.data); } catch (e) { console.error('[detailPanel]', e); }
+      if (detailPanel.isVisible() && detailPanel.getSelectedNetwork()) {
+        send({ type: MESSAGE_TYPES.GET_SUBNET_DETAIL, value: detailPanel.getSelectedNetwork() });
+      }
+      break;
+
+    case MESSAGE_TYPES.SUBNET_DETAIL:
+      try { detailPanel.updateDetail(msg.data); } catch (e) { console.error('[detailPanel]', e); }
       break;
 
     case MESSAGE_TYPES.CONFIG:
