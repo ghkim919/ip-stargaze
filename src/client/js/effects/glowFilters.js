@@ -24,6 +24,24 @@ export function ensureGlowFilter(defs) {
     merge2.append('feMergeNode').attr('in', 'blur');
     merge2.append('feMergeNode').attr('in', 'SourceGraphic');
   }
+
+  if (defs.select('#alert-glow').empty()) {
+    const alertGlow = defs.append('filter')
+      .attr('id', 'alert-glow')
+      .attr('x', '-80%').attr('y', '-80%')
+      .attr('width', '260%').attr('height', '260%');
+    alertGlow.append('feGaussianBlur')
+      .attr('stdDeviation', '5')
+      .attr('result', 'blur');
+    alertGlow.append('feColorMatrix')
+      .attr('in', 'blur')
+      .attr('type', 'matrix')
+      .attr('values', '1 0 0 0 0  0 0.3 0 0 0  0 0 0.5 0 0  0 0 0 1 0')
+      .attr('result', 'tintedBlur');
+    const merge3 = alertGlow.append('feMerge');
+    merge3.append('feMergeNode').attr('in', 'tintedBlur');
+    merge3.append('feMergeNode').attr('in', 'SourceGraphic');
+  }
 }
 
 export function ensurePulseAnimation() {
@@ -38,6 +56,34 @@ export function ensurePulseAnimation() {
       }
       .ray-node-glow {
         animation-name: pulse-glow;
+        animation-timing-function: ease-in-out;
+        animation-iteration-count: infinite;
+      }
+      @keyframes heartbeat {
+        0%   { transform: scale(1);    }
+        15%  { transform: scale(1.15); }
+        30%  { transform: scale(0.97); }
+        45%  { transform: scale(1.08); }
+        60%  { transform: scale(1);    }
+        100% { transform: scale(1);    }
+      }
+      @keyframes heartbeat-glow {
+        0%   { opacity: 0.5; }
+        15%  { opacity: 0.9; }
+        30%  { opacity: 0.4; }
+        45%  { opacity: 0.75; }
+        60%  { opacity: 0.5; }
+        100% { opacity: 0.5; }
+      }
+      .ray-node-heartbeat {
+        animation-name: heartbeat;
+        animation-timing-function: ease-in-out;
+        animation-iteration-count: infinite;
+        transform-origin: center;
+        transform-box: fill-box;
+      }
+      .ray-glow-heartbeat {
+        animation-name: heartbeat-glow;
         animation-timing-function: ease-in-out;
         animation-iteration-count: infinite;
       }

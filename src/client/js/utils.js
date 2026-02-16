@@ -35,25 +35,12 @@ export function getSubnetColor(network) {
   }
 
   const isLight = theme === 'light';
-  let hue;
-  let saturation = 70;
-  let lightness = 60;
-
-  if (isPrivateNetwork(network)) {
-    hue = 200 + (hashString(network) % 40);
-    saturation = 75;
-    lightness = isLight ? 40 : 55;
-  } else if (isKnownService(network)) {
-    hue = 120 + (hashString(network) % 40);
-    saturation = 65;
-    lightness = isLight ? 40 : 55;
-  } else {
-    hue = hashString(network) % 360;
-    saturation = 60 + (hashString(network + 'sat') % 20);
-    lightness = isLight
-      ? 35 + (hashString(network + 'lit') % 15)
-      : 50 + (hashString(network + 'lit') % 15);
-  }
+  const hue = isLight ? 155 : 210;
+  const hash = hashString(network);
+  const saturation = 40 + (hash % 31);
+  const lightness = isLight
+    ? 35 + (hashString(network + 'lit') % 21)
+    : 45 + (hashString(network + 'lit') % 26);
 
   const color = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
   colorCache.set(cacheKey, color);

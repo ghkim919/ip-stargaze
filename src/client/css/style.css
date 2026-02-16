@@ -1,89 +1,95 @@
 :root {
-  --bg-primary: #0a0e27;
-  --bg-secondary: #0d1337;
-  --bg-card: rgba(15, 22, 55, 0.75);
-  --bg-card-hover: rgba(20, 30, 70, 0.85);
+  --bg-primary: #0a0d1a;
+  --bg-secondary: #0f1226;
+  --bg-card: rgba(14, 16, 38, 0.75);
+  --bg-card-hover: rgba(20, 22, 50, 0.85);
   --text-primary: #e2e8f0;
-  --text-secondary: #8899aa;
-  --text-accent: #7dd3fc;
-  --text-muted: #4a6a8a;
-  --accent: #4a9eff;
-  --accent-glow: rgba(74, 158, 255, 0.3);
-  --border: rgba(74, 158, 255, 0.12);
-  --border-glow: rgba(74, 158, 255, 0.3);
+  --text-secondary: #8a94a6;
+  --text-accent: #6aa3d4;
+  --text-muted: #4a5568;
+  --accent: #3D75AD;
+  --accent-glow: rgba(61, 117, 173, 0.3);
+  --border: rgba(61, 117, 173, 0.12);
+  --border-glow: rgba(61, 117, 173, 0.3);
   --status-connected: #34d399;
   --status-reconnecting: #fbbf24;
   --status-disconnected: #f87171;
-  --badge-simulation: #fb923c;
-  --badge-live: #34d399;
-  --proto-tcp: #4a9eff;
-  --proto-udp: #34d399;
-  --proto-icmp: #fbbf24;
-  --badge-sim-bg: rgba(251, 146, 60, 0.15);
-  --badge-sim-border: rgba(251, 146, 60, 0.3);
-  --badge-live-bg: rgba(52, 211, 153, 0.15);
-  --badge-live-border: rgba(52, 211, 153, 0.3);
-  --active-btn-bg: rgba(74, 158, 255, 0.2);
-  --card-hover-shadow: rgba(74, 158, 255, 0.06);
-  --tooltip-bg: rgba(10, 14, 39, 0.95);
+  --badge-simulation: #5a94c4;
+  --badge-live: #3D75AD;
+  --proto-tcp: #3D75AD;
+  --proto-udp: #5a94c4;
+  --proto-icmp: #8ab4d8;
+  --badge-sim-bg: rgba(61, 117, 173, 0.15);
+  --badge-sim-border: rgba(61, 117, 173, 0.3);
+  --badge-live-bg: rgba(61, 117, 173, 0.15);
+  --badge-live-border: rgba(61, 117, 173, 0.3);
+  --active-btn-bg: rgba(61, 117, 173, 0.2);
+  --card-hover-shadow: rgba(61, 117, 173, 0.06);
+  --tooltip-bg: rgba(10, 13, 26, 0.95);
   --tooltip-shadow: rgba(0, 0, 0, 0.5);
   --dropdown-shadow: rgba(0, 0, 0, 0.5);
   --panel-shadow: rgba(0, 0, 0, 0.5);
-  --row-hover-bg: rgba(74, 158, 255, 0.04);
-  --badge-private-bg: rgba(74, 158, 255, 0.12);
-  --badge-private-border: rgba(74, 158, 255, 0.25);
-  --badge-public-bg: rgba(251, 146, 60, 0.12);
-  --badge-public-border: rgba(251, 146, 60, 0.25);
-  --badge-window-bg: rgba(74, 158, 255, 0.08);
-  --hub-outer-fill: rgba(100, 180, 255, 0.08);
-  --hub-outer-stroke: rgba(100, 180, 255, 0.15);
-  --hub-fill: #0f1b3d;
-  --label-fill: #a0b4cc;
+  --row-hover-bg: rgba(61, 117, 173, 0.04);
+  --badge-private-bg: rgba(61, 117, 173, 0.12);
+  --badge-private-border: rgba(61, 117, 173, 0.25);
+  --badge-public-bg: rgba(33, 15, 105, 0.18);
+  --badge-public-border: rgba(33, 15, 105, 0.35);
+  --badge-window-bg: rgba(61, 117, 173, 0.08);
+  --hub-outer-fill: rgba(61, 117, 173, 0.08);
+  --hub-outer-stroke: rgba(61, 117, 173, 0.15);
+  --hub-fill: #0e1230;
+  --label-fill: #8aa4bc;
+  --alert-color: #c24873;
+  --alert-glow: rgba(194, 72, 115, 0.35);
+  --alert-glow-strong: rgba(194, 72, 115, 0.6);
   --radius: 8px;
   --transition: 200ms ease;
 }
 
 [data-theme="light"] {
-  --bg-primary: #f1f5f9;
+  --bg-primary: #f4f7f5;
   --bg-secondary: #ffffff;
-  --bg-card: rgba(255, 255, 255, 0.92);
-  --bg-card-hover: rgba(241, 245, 249, 0.95);
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-accent: #1d4ed8;
+  --bg-card: rgba(225, 238, 206, 0.35);
+  --bg-card-hover: rgba(225, 238, 206, 0.55);
+  --text-primary: #1a1a2e;
+  --text-secondary: #4a5568;
+  --text-accent: #1a8f5c;
   --text-muted: #94a3b8;
-  --accent: #3b82f6;
-  --accent-glow: rgba(59, 130, 246, 0.2);
+  --accent: #21B678;
+  --accent-glow: rgba(33, 182, 120, 0.2);
   --border: rgba(15, 23, 42, 0.1);
-  --border-glow: rgba(59, 130, 246, 0.3);
+  --border-glow: rgba(33, 182, 120, 0.3);
   --status-connected: #10b981;
   --status-reconnecting: #f59e0b;
   --status-disconnected: #ef4444;
-  --badge-simulation: #f97316;
-  --badge-live: #10b981;
-  --proto-tcp: #3b82f6;
-  --proto-udp: #10b981;
-  --proto-icmp: #f59e0b;
-  --badge-sim-bg: rgba(249, 115, 22, 0.1);
-  --badge-sim-border: rgba(249, 115, 22, 0.25);
-  --badge-live-bg: rgba(16, 185, 129, 0.1);
-  --badge-live-border: rgba(16, 185, 129, 0.25);
-  --active-btn-bg: rgba(59, 130, 246, 0.12);
+  --badge-simulation: #1a8f5c;
+  --badge-live: #21B678;
+  --proto-tcp: #21B678;
+  --proto-udp: #1a8f5c;
+  --proto-icmp: #6dc4a0;
+  --badge-sim-bg: rgba(33, 182, 120, 0.1);
+  --badge-sim-border: rgba(33, 182, 120, 0.25);
+  --badge-live-bg: rgba(33, 182, 120, 0.1);
+  --badge-live-border: rgba(33, 182, 120, 0.25);
+  --active-btn-bg: rgba(33, 182, 120, 0.12);
   --card-hover-shadow: rgba(15, 23, 42, 0.06);
   --tooltip-bg: rgba(255, 255, 255, 0.98);
   --tooltip-shadow: rgba(15, 23, 42, 0.12);
   --dropdown-shadow: rgba(15, 23, 42, 0.15);
   --panel-shadow: rgba(15, 23, 42, 0.1);
-  --row-hover-bg: rgba(59, 130, 246, 0.05);
-  --badge-private-bg: rgba(59, 130, 246, 0.08);
-  --badge-private-border: rgba(59, 130, 246, 0.22);
-  --badge-public-bg: rgba(249, 115, 22, 0.08);
-  --badge-public-border: rgba(249, 115, 22, 0.22);
-  --badge-window-bg: rgba(59, 130, 246, 0.08);
-  --hub-outer-fill: rgba(59, 130, 246, 0.07);
-  --hub-outer-stroke: rgba(59, 130, 246, 0.15);
+  --row-hover-bg: rgba(33, 182, 120, 0.05);
+  --badge-private-bg: rgba(33, 182, 120, 0.08);
+  --badge-private-border: rgba(33, 182, 120, 0.22);
+  --badge-public-bg: rgba(225, 238, 206, 0.4);
+  --badge-public-border: rgba(33, 182, 120, 0.18);
+  --badge-window-bg: rgba(33, 182, 120, 0.08);
+  --hub-outer-fill: rgba(33, 182, 120, 0.07);
+  --hub-outer-stroke: rgba(33, 182, 120, 0.15);
   --hub-fill: #ffffff;
-  --label-fill: #334155;
+  --label-fill: #2d3748;
+  --alert-color: #c24873;
+  --alert-glow: rgba(194, 72, 115, 0.25);
+  --alert-glow-strong: rgba(194, 72, 115, 0.5);
 }
 
 *,
@@ -154,15 +160,15 @@ body {
 }
 
 .mode-remote {
-  background: rgba(99, 102, 241, 0.12);
-  color: #818cf8;
-  border: 1px solid rgba(99, 102, 241, 0.25);
+  background: rgba(33, 15, 105, 0.18);
+  color: #7a6abf;
+  border: 1px solid rgba(33, 15, 105, 0.35);
 }
 
 [data-theme="light"] .mode-remote {
-  background: rgba(79, 70, 229, 0.1);
-  color: #4f46e5;
-  border: 1px solid rgba(79, 70, 229, 0.25);
+  background: rgba(225, 238, 206, 0.5);
+  color: #1a8f5c;
+  border: 1px solid rgba(33, 182, 120, 0.25);
 }
 
 .controls {
