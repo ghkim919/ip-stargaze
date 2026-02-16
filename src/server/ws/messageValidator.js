@@ -56,3 +56,41 @@ export function getAvailableInterfaces() {
   }
   return result;
 }
+
+export function validateSource(value) {
+  return typeof value === 'string' && value.length > 0;
+}
+
+export function validateAgentAdd(value) {
+  if (!value || typeof value !== 'object') return false;
+  if (typeof value.url !== 'string' || !value.url) return false;
+  if (typeof value.apiKey !== 'string') return false;
+  try {
+    new URL(value.url);
+  } catch {
+    return false;
+  }
+  return true;
+}
+
+export function validateAgentRemove(value) {
+  if (!value || typeof value !== 'object') return false;
+  return typeof value.id === 'string' && value.id.length > 0;
+}
+
+export function validateAgentEnabled(value) {
+  if (!value || typeof value !== 'object') return false;
+  if (typeof value.id !== 'string' || !value.id) return false;
+  return typeof value.enabled === 'boolean';
+}
+
+export function validateAgentTest(value) {
+  if (!value || typeof value !== 'object') return false;
+  if (typeof value.url !== 'string' || !value.url) return false;
+  try {
+    new URL(value.url);
+  } catch {
+    return false;
+  }
+  return true;
+}

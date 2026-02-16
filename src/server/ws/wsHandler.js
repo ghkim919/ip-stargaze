@@ -1,16 +1,21 @@
 import config from '../config.js';
 import { VALIDATION_RULES } from '../config/constants.js';
 import { MESSAGE_TYPES, ERROR_MESSAGES } from '../../shared/protocol.js';
-import { validateWindow, validateSubnetLevel, validateScenario, validateEPS, parseEPS, validateFilter, validateInterface, getAvailableInterfaces } from './messageValidator.js';
+import { validateWindow, validateSubnetLevel, validateScenario, validateEPS, parseEPS, validateFilter, validateInterface, getAvailableInterfaces, validateSource, validateAgentAdd, validateAgentRemove, validateAgentEnabled, validateAgentTest } from './messageValidator.js';
 
 export default class WsHandler {
-  #clients = new Set();
+  #clients = new Map();
   #aggregator;
   #captureManager;
+  #remoteCollector = null;
 
   constructor({ aggregator, captureManager }) {
     this.#aggregator = aggregator;
     this.#captureManager = captureManager;
+  }
+
+  setRemoteCollector(collector) {
+    this.#remoteCollector = collector;
   }
 
   get clientCount() {
@@ -24,7 +29,7 @@ export default class WsHandler {
   }
 
   #handleConnection(socket) {
-    this.#clients.add(socket);
+    this.#clients.set(socket, { selectedSource: 'local' });
     console.log(`WebSocket client connected (total: ${this.#clients.size})`);
 
     this.#sendConfig(socket);
@@ -47,7 +52,22 @@ export default class WsHandler {
     });
   }
 
-  #handleMessage(socket, raw) {
+  #getAggregatorForClient(socket) {
+    const state = this.#clients.get(socket);
+    if (!state) return this.#aggregator;
+
+    const source = state.selectedSource;
+    if (source === 'local') return this.#aggregator;
+
+    if (this.#remoteCollector) {
+      const agentAgg = this.#remoteCollector.getAggregator(source);
+      if (agentAgg) return agentAgg;
+    }
+
+    return this.#aggregator;
+  }
+
+  async #handleMessage(socket, raw) {
     let msg;
     try {
       msg = JSON.parse(raw.toString());
@@ -57,23 +77,55 @@ export default class WsHandler {
     }
 
     switch (msg.type) {
-      case MESSAGE_TYPES.SET_WINDOW:
+      case MESSAGE_TYPES.SET_SOURCE: {
+        if (!validateSource(msg.value)) {
+          this.#send(socket, { type: MESSAGE_TYPES.ERROR, data: { message: 'Invalid source value' } });
+          break;
+        }
+        const state = this.#clients.get(socket);
+        if (state) {
+          state.selectedSource = msg.value;
+        }
+        this.#sendConfig(socket);
+        const agg = this.#getAggregatorForClient(socket);
+        const snapshot = agg.buildSnapshot();
+        this.#send(socket, { type: MESSAGE_TYPES.SNAPSHOT, data: snapshot });
+        break;
+      }
+
+      case MESSAGE_TYPES.SET_WINDOW: {
         if (validateWindow(msg.value)) {
-          this.#aggregator.setWindow(msg.value);
+          const agg = this.#getAggregatorForClient(socket);
+          agg.setWindow(msg.value);
           this.#broadcastConfig();
         } else {
           this.#send(socket, { type: MESSAGE_TYPES.ERROR, data: { message: ERROR_MESSAGES.INVALID_WINDOW } });
         }
         break;
+      }
 
-      case MESSAGE_TYPES.SET_SUBNET_LEVEL:
+      case MESSAGE_TYPES.SET_SUBNET_LEVEL: {
         if (validateSubnetLevel(msg.value)) {
-          this.#aggregator.setSubnetLevel(msg.value);
+          const agg = this.#getAggregatorForClient(socket);
+          agg.setSubnetLevel(msg.value);
           this.#broadcastConfig();
         } else {
           this.#send(socket, { type: MESSAGE_TYPES.ERROR, data: { message: ERROR_MESSAGES.INVALID_SUBNET } });
         }
         break;
+      }
+
+      case MESSAGE_TYPES.SET_MAX_NODES: {
+        const n = parseInt(msg.value, 10);
+        if (n >= 5 && n <= 200) {
+          const agg = this.#getAggregatorForClient(socket);
+          agg.setMaxNodes(n);
+          this.#broadcastConfig();
+        } else {
+          this.#send(socket, { type: MESSAGE_TYPES.ERROR, data: { message: 'Max nodes must be between 5 and 200' } });
+        }
+        break;
+      }
 
       case MESSAGE_TYPES.SET_SCENARIO:
         if (validateScenario(msg.value)) {
@@ -94,7 +146,8 @@ export default class WsHandler {
         break;
 
       case MESSAGE_TYPES.GET_SUBNET_DETAIL: {
-        const detail = this.#aggregator.buildSubnetDetail(msg.value);
+        const agg = this.#getAggregatorForClient(socket);
+        const detail = agg.buildSubnetDetail(msg.value);
         if (detail) {
           this.#send(socket, { type: MESSAGE_TYPES.SUBNET_DETAIL, data: detail });
         }
@@ -103,7 +156,8 @@ export default class WsHandler {
 
       case MESSAGE_TYPES.SET_FILTER: {
         if (validateFilter(msg.value)) {
-          this.#aggregator.setFilter({
+          const agg = this.#getAggregatorForClient(socket);
+          agg.setFilter({
             ports: msg.value.ports || [],
             protocols: msg.value.protocols || [],
           });
@@ -138,34 +192,137 @@ export default class WsHandler {
         break;
       }
 
+      case MESSAGE_TYPES.ADD_AGENT: {
+        if (!this.#remoteCollector) {
+          this.#send(socket, { type: MESSAGE_TYPES.ERROR, data: { message: 'Remote collector not available' } });
+          break;
+        }
+        if (!validateAgentAdd(msg.value)) {
+          this.#send(socket, { type: MESSAGE_TYPES.ERROR, data: { message: 'Invalid agent data' } });
+          break;
+        }
+        const addResult = await this.#remoteCollector.addAgent({
+          url: msg.value.url,
+          apiKey: msg.value.apiKey || '',
+          label: msg.value.label || '',
+        });
+        if (addResult.success) {
+          this.broadcast({ type: MESSAGE_TYPES.AGENTS, data: this.#remoteCollector.getAgents() });
+        } else {
+          this.#send(socket, { type: MESSAGE_TYPES.ERROR, data: { message: addResult.error } });
+        }
+        break;
+      }
+
+      case MESSAGE_TYPES.REMOVE_AGENT: {
+        if (!this.#remoteCollector) {
+          this.#send(socket, { type: MESSAGE_TYPES.ERROR, data: { message: 'Remote collector not available' } });
+          break;
+        }
+        if (!validateAgentRemove(msg.value)) {
+          this.#send(socket, { type: MESSAGE_TYPES.ERROR, data: { message: 'Invalid agent id' } });
+          break;
+        }
+        const removedId = msg.value.id;
+        this.#remoteCollector.removeAgent(removedId);
+        for (const [client, state] of this.#clients) {
+          if (state.selectedSource === removedId) {
+            state.selectedSource = 'local';
+            this.#sendConfig(client);
+          }
+        }
+        this.broadcast({ type: MESSAGE_TYPES.AGENTS, data: this.#remoteCollector.getAgents() });
+        break;
+      }
+
+      case MESSAGE_TYPES.SET_AGENT_ENABLED: {
+        if (!this.#remoteCollector) {
+          this.#send(socket, { type: MESSAGE_TYPES.ERROR, data: { message: 'Remote collector not available' } });
+          break;
+        }
+        if (!validateAgentEnabled(msg.value)) {
+          this.#send(socket, { type: MESSAGE_TYPES.ERROR, data: { message: 'Invalid agent enabled data' } });
+          break;
+        }
+        this.#remoteCollector.setAgentEnabled(msg.value.id, msg.value.enabled);
+        this.broadcast({ type: MESSAGE_TYPES.AGENTS, data: this.#remoteCollector.getAgents() });
+        break;
+      }
+
+      case MESSAGE_TYPES.TEST_AGENT: {
+        if (!this.#remoteCollector) {
+          this.#send(socket, { type: MESSAGE_TYPES.ERROR, data: { message: 'Remote collector not available' } });
+          break;
+        }
+        if (!validateAgentTest(msg.value)) {
+          this.#send(socket, { type: MESSAGE_TYPES.ERROR, data: { message: 'Invalid test agent data' } });
+          break;
+        }
+        const testResult = await this.#remoteCollector.testAgent(msg.value.url, msg.value.apiKey || '');
+        this.#send(socket, { type: MESSAGE_TYPES.TEST_AGENT_RESULT, data: testResult });
+        break;
+      }
+
+      case MESSAGE_TYPES.GET_AGENTS: {
+        if (!this.#remoteCollector) {
+          this.#send(socket, { type: MESSAGE_TYPES.AGENTS, data: [] });
+          break;
+        }
+        this.#send(socket, { type: MESSAGE_TYPES.AGENTS, data: this.#remoteCollector.getAgents() });
+        break;
+      }
+
       default:
         this.#send(socket, { type: MESSAGE_TYPES.ERROR, data: { message: ERROR_MESSAGES.UNKNOWN_TYPE(msg.type) } });
     }
   }
 
-  #buildConfigPayload() {
+  #buildConfigPayload(aggregator) {
+    const agg = aggregator || this.#aggregator;
+    const isRemote = agg !== this.#aggregator;
     return {
-      mode: this.#captureManager.mode,
-      window: this.#aggregator.window,
-      subnetLevel: this.#aggregator.subnetLevel,
+      mode: isRemote ? 'remote' : this.#captureManager.mode,
+      window: agg.window,
+      subnetLevel: agg.subnetLevel,
+      maxNodes: agg.maxNodes,
       scenario: this.#captureManager.scenario,
       iface: config.interface,
       eventsPerSecond: this.#captureManager.eventsPerSecond,
-      filter: this.#aggregator.filter,
+      filter: agg.filter,
     };
   }
 
   #sendConfig(socket) {
-    this.#send(socket, { type: MESSAGE_TYPES.CONFIG, data: this.#buildConfigPayload() });
+    const agg = this.#getAggregatorForClient(socket);
+    this.#send(socket, { type: MESSAGE_TYPES.CONFIG, data: this.#buildConfigPayload(agg) });
   }
 
   #broadcastConfig() {
-    this.broadcast({ type: MESSAGE_TYPES.CONFIG, data: this.#buildConfigPayload() });
+    for (const [client] of this.#clients) {
+      try {
+        const agg = this.#getAggregatorForClient(client);
+        client.send(JSON.stringify({ type: MESSAGE_TYPES.CONFIG, data: this.#buildConfigPayload(agg) }));
+      } catch {
+        this.#clients.delete(client);
+      }
+    }
+  }
+
+  broadcastSnapshots() {
+    for (const [client, state] of this.#clients) {
+      try {
+        const agg = this.#getAggregatorForClient(client);
+        const snapshot = agg.buildSnapshot();
+        client.send(JSON.stringify({ type: MESSAGE_TYPES.SNAPSHOT, data: snapshot }));
+      } catch {
+        this.#clients.delete(client);
+      }
+    }
   }
 
   broadcast(message) {
     const payload = typeof message === 'string' ? message : JSON.stringify(message);
-    for (const client of this.#clients) {
+    for (const client of this.#clients.keys()) {
       try {
         client.send(payload);
       } catch {
@@ -183,7 +340,7 @@ export default class WsHandler {
   }
 
   destroy() {
-    for (const client of this.#clients) {
+    for (const client of this.#clients.keys()) {
       try {
         client.close();
       } catch {}

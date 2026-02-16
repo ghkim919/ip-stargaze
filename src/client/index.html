@@ -43,6 +43,10 @@
             <span class="control-label">Alert</span>
             <input type="number" id="pps-threshold-input" min="1" max="100" value="10" step="1" class="num-input">
           </div>
+          <div class="control-group">
+            <span class="control-label">Nodes</span>
+            <input type="number" id="max-nodes-input" min="5" max="200" value="30" step="5" class="num-input" data-tooltip="Maximum subnet nodes displayed (5-200)">
+          </div>
         </div>
 
         <div class="control-section control-section--filter">
@@ -94,6 +98,15 @@
               <option value="">-</option>
             </select>
           </div>
+          <button class="agents-btn" id="agents-btn" title="Manage agents">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            <span>Agents</span>
+          </button>
           <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle theme">
             <svg class="theme-icon theme-icon--sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="5"/>
@@ -110,6 +123,16 @@
         </div>
       </div>
     </header>
+
+    <div class="source-tabs" id="source-tabs">
+      <div class="source-tabs-list" id="source-tabs-list">
+        <button class="source-tab active" data-source="local">
+          <span class="source-tab-dot source-tab-dot--active"></span>
+          <span class="source-tab-label">Local</span>
+        </button>
+      </div>
+      <button class="source-tab-add" id="source-tab-add" title="Add agent">+</button>
+    </div>
 
     <div class="stats-row">
       <div class="stat-card" data-tooltip="Total packets captured within the current monitoring window">
@@ -145,6 +168,36 @@
 
     <div class="main-area">
       <div id="star-container"></div>
+
+      <aside class="agent-panel" id="agent-panel">
+        <div class="agent-panel-header">
+          <span class="agent-panel-title">Agents</span>
+          <button class="detail-close-btn" id="agent-panel-close">&times;</button>
+        </div>
+        <div class="agent-panel-body">
+          <div class="agent-list" id="agent-list"></div>
+          <button class="agent-add-toggle" id="agent-add-toggle">+ Add Agent</button>
+          <div class="agent-add-form" id="agent-add-form">
+            <div class="agent-form-field">
+              <label class="agent-form-label" for="agent-url-input">URL</label>
+              <input type="text" id="agent-url-input" class="agent-form-input" placeholder="http://10.0.1.5:15119">
+            </div>
+            <div class="agent-form-field">
+              <label class="agent-form-label" for="agent-key-input">API Key</label>
+              <input type="password" id="agent-key-input" class="agent-form-input" placeholder="Bearer token">
+            </div>
+            <div class="agent-form-field">
+              <label class="agent-form-label" for="agent-label-input">Label</label>
+              <input type="text" id="agent-label-input" class="agent-form-input" placeholder="My Server">
+            </div>
+            <div class="agent-test-result" id="agent-test-result"></div>
+            <div class="agent-form-actions">
+              <button class="agent-test-btn" id="agent-test-btn">Test</button>
+              <button class="agent-add-btn" id="agent-add-btn">Add</button>
+            </div>
+          </div>
+        </div>
+      </aside>
 
       <aside class="detail-panel" id="detail-panel">
         <div class="detail-header">

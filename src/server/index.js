@@ -7,6 +7,8 @@ import config from './config.js';
 import CaptureManager from './capture/captureManager.js';
 import Aggregator from './analysis/aggregator.js';
 import WsHandler from './ws/wsHandler.js';
+import AgentStore from './remote/agentStore.js';
+import RemoteCollector from './remote/remoteCollector.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -19,6 +21,17 @@ const aggregator = new Aggregator({
   subnetLevel: config.defaultSubnetLevel,
 });
 const wsHandler = new WsHandler({ aggregator, captureManager });
+
+const agentStore = new AgentStore(config.agentsFilePath);
+const remoteCollector = new RemoteCollector({
+  agentStore,
+  pollingIntervalMs: config.defaultPollingIntervalMs,
+  pollingTimeoutMs: config.pollingTimeoutMs,
+  maxEventsPerPoll: config.maxEventsPerPoll,
+  maxAgents: config.maxAgents,
+});
+wsHandler.setRemoteCollector(remoteCollector);
+remoteCollector.start();
 
 await fastify.register(fastifyStatic, {
   root: join(__dirname, '..', 'client'),
@@ -46,7 +59,7 @@ aggregator.startPeriodicSnapshot((snapshot) => {
   if (snapshotCount <= 5 || snapshotCount % 10 === 0) {
     console.log(`[snapshot #${snapshotCount}] packets received: ${packetCounter} | aggregated: ${snapshot.summary.totalPackets} | subnets: ${snapshot.subnets.length} | clients: ${wsHandler.clientCount}`);
   }
-  wsHandler.broadcast({ type: 'snapshot', data: snapshot });
+  wsHandler.broadcastSnapshots();
 });
 
 captureManager.start({
@@ -56,6 +69,7 @@ captureManager.start({
 
 const shutdown = async () => {
   console.log('Shutting down...');
+  remoteCollector.destroy();
   captureManager.stop();
   aggregator.destroy();
   wsHandler.destroy();

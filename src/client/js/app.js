@@ -1,6 +1,8 @@
 import * as starGraph from './starGraph.js';
 import * as dashboard from './dashboard.js';
 import * as detailPanel from './detailPanel.js';
+import * as agentPanel from './agentPanel.js';
+import * as sourceTabBar from './sourceTabBar.js';
 import { WEBSOCKET_CONFIG } from './config.js';
 import { MESSAGE_TYPES } from '/shared/protocol.js';
 import { isLiveMode } from './helpers/modeHelpers.js';
@@ -41,6 +43,7 @@ function connect() {
     reconnectAttempts = 0;
     dashboard.setConnectionStatus('connected');
     send({ type: MESSAGE_TYPES.GET_INTERFACES });
+    send({ type: MESSAGE_TYPES.GET_AGENTS });
   };
 
   ws.onmessage = (event) => {
@@ -112,17 +115,37 @@ function handleMessage(msg) {
     case MESSAGE_TYPES.INTERFACES:
       populateNicSelect(msg.data);
       break;
+
+    case MESSAGE_TYPES.AGENTS:
+      try { agentPanel.updateAgents(msg.data); } catch (e) { console.error('[agentPanel]', e); }
+      try { sourceTabBar.updateAgents(msg.data); } catch (e) { console.error('[sourceTabBar]', e); }
+      break;
+
+    case MESSAGE_TYPES.TEST_AGENT_RESULT:
+      try { agentPanel.handleTestResult(msg.data); } catch (e) { console.error('[agentPanel]', e); }
+      break;
   }
 }
 
 function applyConfig(config) {
   if (!config) return;
 
+  const isRemote = config.mode === 'remote';
+  const live = isLiveMode(config);
+  const disableSim = live || isRemote;
+
   const modeEl = document.getElementById('mode-badge');
   if (modeEl) {
-    const live = isLiveMode(config);
-    modeEl.textContent = live ? 'LIVE' : 'SIMULATION';
-    modeEl.className = 'mode-badge ' + (live ? 'mode-live' : 'mode-sim');
+    if (isRemote) {
+      modeEl.textContent = 'REMOTE';
+      modeEl.className = 'mode-badge mode-remote';
+    } else if (live) {
+      modeEl.textContent = 'LIVE';
+      modeEl.className = 'mode-badge mode-live';
+    } else {
+      modeEl.textContent = 'SIMULATION';
+      modeEl.className = 'mode-badge mode-sim';
+    }
   }
 
   if (config.window) {
@@ -132,6 +155,11 @@ function applyConfig(config) {
 
   if (config.subnetLevel) {
     setActiveSubnetButton(config.subnetLevel);
+  }
+
+  if (config.maxNodes) {
+    const maxNodesInput = document.getElementById('max-nodes-input');
+    if (maxNodesInput) maxNodesInput.value = config.maxNodes;
   }
 
   if (config.scenario) {
@@ -152,12 +180,11 @@ function applyConfig(config) {
 
   const simSection = document.getElementById('sim-section');
   if (simSection) {
-    const live = isLiveMode(config);
-    simSection.style.opacity = live ? '0.4' : '1';
+    simSection.style.opacity = disableSim ? '0.4' : '1';
     const scenarioSelect = document.getElementById('scenario-select');
     const epsInput = document.getElementById('eps-input');
-    if (scenarioSelect) scenarioSelect.disabled = live;
-    if (epsInput) epsInput.disabled = live;
+    if (scenarioSelect) scenarioSelect.disabled = disableSim;
+    if (epsInput) epsInput.disabled = disableSim;
   }
 
   if (config.filter) {
@@ -167,10 +194,9 @@ function applyConfig(config) {
 
   const nicSelect = document.getElementById('nic-select');
   if (nicSelect) {
-    const live = isLiveMode(config);
-    nicSelect.disabled = !live;
+    nicSelect.disabled = !live || isRemote;
     const nicControl = document.getElementById('nic-control');
-    if (nicControl) nicControl.style.opacity = live ? '1' : '0.4';
+    if (nicControl) nicControl.style.opacity = (live && !isRemote) ? '1' : '0.4';
     if (config.iface && nicSelect.querySelector(`option[value="${config.iface}"]`)) {
       nicSelect.value = config.iface;
     }
@@ -224,6 +250,15 @@ function initControls() {
     });
   }
 
+  const maxNodesInput = document.getElementById('max-nodes-input');
+  if (maxNodesInput) {
+    maxNodesInput.addEventListener('change', () => {
+      const val = Math.max(5, Math.min(200, parseInt(maxNodesInput.value, 10) || 30));
+      maxNodesInput.value = val;
+      send({ type: MESSAGE_TYPES.SET_MAX_NODES, value: val });
+    });
+  }
+
   initPortFilter();
   initProtocolButtons();
   initNicSelect();
@@ -236,6 +271,8 @@ function initApp() {
   });
 
   detailPanel.init();
+  agentPanel.init(send);
+  sourceTabBar.init(send, () => agentPanel.open());
   initControls();
   initThemeToggle(() => {
     clearColorCache();
@@ -248,6 +285,13 @@ function initApp() {
       const panel = document.getElementById('detail-panel');
       if (panel && !panel.contains(e.target) && !e.target.closest('.ray-group')) {
         detailPanel.close();
+      }
+    }
+    if (agentPanel.isVisible()) {
+      const panel = document.getElementById('agent-panel');
+      const agentsBtn = document.getElementById('agents-btn');
+      if (panel && !panel.contains(e.target) && e.target !== agentsBtn && !agentsBtn?.contains(e.target)) {
+        agentPanel.close();
       }
     }
   });

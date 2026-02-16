@@ -1,0 +1,10 @@
+{
+  "agentId": "web-server-01",
+  "port": 15119,
+  "host": "0.0.0.0",
+  "mode": "simulation",
+  "interface": "eth0",
+  "apiKey": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "bufferCapacity": 100000,
+  "logLevel": "info"
+}

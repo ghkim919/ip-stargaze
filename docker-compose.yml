@@ -1,0 +1,36 @@
+services:
+  server:
+    build: .
+    command: node src/server/index.js
+    ports:
+      - "15118:15118"
+    environment:
+      - MODE=simulation
+      - EVENTS_PER_SECOND=10
+      - AGENTS_FILE=/app/data/agents.json
+    volumes:
+      - agent-data:/app/data
+    depends_on:
+      - agent-web
+      - agent-db
+
+  agent-web:
+    build: .
+    command: node src/agent/index.js
+    environment:
+      - AGENT_ID=web-server-01
+      - AGENT_PORT=15119
+      - AGENT_API_KEY=test-key-web
+      - AGENT_MODE=simulation
+
+  agent-db:
+    build: .
+    command: node src/agent/index.js
+    environment:
+      - AGENT_ID=db-server-01
+      - AGENT_PORT=15119
+      - AGENT_API_KEY=test-key-db
+      - AGENT_MODE=simulation
+
+volumes:
+  agent-data:

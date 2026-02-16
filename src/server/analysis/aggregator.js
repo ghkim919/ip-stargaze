@@ -6,6 +6,7 @@ export default class Aggregator {
   #events = [];
   #window;
   #subnetLevel;
+  #maxNodes;
   #snapshotTimer = null;
   #onSnapshot = null;
   #filter = { ports: [], protocols: [] };
@@ -13,6 +14,7 @@ export default class Aggregator {
   constructor({ window = config.defaultWindow, subnetLevel = config.defaultSubnetLevel } = {}) {
     this.#window = WINDOW_DURATIONS_MS[window] ? window : config.defaultWindow;
     this.#subnetLevel = config.validSubnetLevels.includes(subnetLevel) ? subnetLevel : config.defaultSubnetLevel;
+    this.#maxNodes = config.maxSubnetsInSnapshot;
   }
 
   get window() {
@@ -32,6 +34,17 @@ export default class Aggregator {
   setSubnetLevel(level) {
     if (config.validSubnetLevels.includes(level)) {
       this.#subnetLevel = level;
+    }
+  }
+
+  get maxNodes() {
+    return this.#maxNodes;
+  }
+
+  setMaxNodes(value) {
+    const n = parseInt(value, 10);
+    if (n >= 5 && n <= 200) {
+      this.#maxNodes = n;
     }
   }
 
@@ -175,8 +188,8 @@ export default class Aggregator {
     let othersBytes = 0;
     let othersUniqueIps = new Set();
 
-    if (subnets.length > config.maxSubnetsInSnapshot) {
-      const overflow = subnets.splice(config.maxSubnetsInSnapshot);
+    if (subnets.length > this.#maxNodes) {
+      const overflow = subnets.splice(this.#maxNodes);
       for (const s of overflow) {
         othersCount += s.count;
         othersBytes += s.bytes;

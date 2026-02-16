@@ -13,6 +13,17 @@ export const MSG = {
   SUBNET_DETAIL: 'subnetDetail',
   CONFIG: 'config',
   ERROR: 'error',
+
+  SET_SOURCE: 'setSource',
+  SET_MAX_NODES: 'setMaxNodes',
+
+  ADD_AGENT: 'addAgent',
+  REMOVE_AGENT: 'removeAgent',
+  SET_AGENT_ENABLED: 'setAgentEnabled',
+  TEST_AGENT: 'testAgent',
+  GET_AGENTS: 'getAgents',
+  AGENTS: 'agents',
+  TEST_AGENT_RESULT: 'testAgentResult',
 };
 
 export const ERR = {
