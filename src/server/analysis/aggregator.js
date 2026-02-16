@@ -8,6 +8,7 @@ export default class Aggregator {
   #subnetLevel;
   #snapshotTimer = null;
   #onSnapshot = null;
+  #filter = { ports: [], protocols: [] };
 
   constructor({ window = config.defaultWindow, subnetLevel = config.defaultSubnetLevel } = {}) {
     this.#window = WINDOW_DURATIONS_MS[window] ? window : config.defaultWindow;
@@ -32,6 +33,24 @@ export default class Aggregator {
     if (config.validSubnetLevels.includes(level)) {
       this.#subnetLevel = level;
     }
+  }
+
+  get filter() {
+    return { ports: [...this.#filter.ports], protocols: [...this.#filter.protocols] };
+  }
+
+  setFilter(filter) {
+    this.#filter = {
+      ports: Array.isArray(filter.ports) ? filter.ports : [],
+      protocols: Array.isArray(filter.protocols) ? filter.protocols : [],
+    };
+  }
+
+  #passesFilter(event) {
+    const { ports, protocols } = this.#filter;
+    if (protocols.length > 0 && !protocols.includes(event.protocol)) return false;
+    if (ports.length > 0 && event.protocol !== 'ICMP' && !ports.includes(event.destPort)) return false;
+    return true;
   }
 
   addEvent(packetEvent) {
@@ -73,6 +92,8 @@ export default class Aggregator {
     const globalUniqueIps = new Set();
 
     for (const event of this.#events) {
+      if (!this.#passesFilter(event)) continue;
+
       const subnetInfo = event.classification.subnets[level];
       if (!subnetInfo) continue;
 
@@ -117,7 +138,8 @@ export default class Aggregator {
       }
     }
 
-    const totalPackets = this.#events.length;
+    let totalPackets = 0;
+    for (const b of subnetMap.values()) totalPackets += b.count;
     const totalPps = parseFloat((totalPackets / windowSec).toFixed(1));
 
     const topIpsCount = AGGREGATOR_DEFAULTS.TOP_IPS_COUNT;
@@ -161,6 +183,7 @@ export default class Aggregator {
       }
 
       for (const event of this.#events) {
+        if (!this.#passesFilter(event)) continue;
         const subnetInfo = event.classification.subnets[level];
         if (!subnetInfo) continue;
         const found = subnets.find((s) => s.network === subnetInfo.network);
@@ -216,6 +239,8 @@ export default class Aggregator {
     let matched = false;
 
     for (const event of this.#events) {
+      if (!this.#passesFilter(event)) continue;
+
       const subnetInfo = event.classification.subnets[level];
       if (!subnetInfo || subnetInfo.network !== network) continue;
 

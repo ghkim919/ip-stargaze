@@ -13,6 +13,9 @@ export const SUBNET_PARENT_MAP = {
 export const VALIDATION_RULES = {
   EPS_MIN: 1,
   EPS_MAX: 1000,
+  PORT_MIN: 1,
+  PORT_MAX: 65535,
+  VALID_PROTOCOLS: ['TCP', 'UDP', 'ICMP'],
 };
 
 export const AGGREGATOR_DEFAULTS = {

@@ -84,4 +84,17 @@ export default class CaptureManager extends EventEmitter {
   get eventsPerSecond() {
     return this.#source?.eventsPerSecond ?? config.eventsPerSecond;
   }
+
+  get interface() {
+    return config.interface;
+  }
+
+  setInterface(iface) {
+    if (this.#mode !== 'live') {
+      throw new Error('Interface change is only available in live mode');
+    }
+    config.interface = iface;
+    this.stop();
+    this.#startPcap({});
+  }
 }

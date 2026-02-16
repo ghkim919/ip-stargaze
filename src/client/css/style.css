@@ -188,6 +188,42 @@ input[type="range"]:disabled {
   font-variant-numeric: tabular-nums;
 }
 
+.num-input {
+  background: var(--bg-card);
+  color: var(--text-accent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px 8px;
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  width: 72px;
+  text-align: center;
+  transition: border-color var(--transition);
+  -moz-appearance: textfield;
+}
+
+.num-input::-webkit-outer-spin-button,
+.num-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.num-input:hover {
+  border-color: var(--border-glow);
+}
+
+.num-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.num-input:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .subnet-btn-group {
   display: flex;
 }
@@ -264,6 +300,168 @@ input[type="range"]:disabled {
 @keyframes blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
+}
+
+/* ===== Port Filter ===== */
+.port-filter-wrapper {
+  position: relative;
+}
+
+.port-filter-btn {
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 5px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.port-filter-btn:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
+.port-filter-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 200;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px;
+  display: none;
+  width: 200px;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 4px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.port-filter-dropdown.open {
+  display: block;
+}
+
+.port-filter-presets label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+  font-size: 12px;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.port-filter-presets label:hover {
+  color: var(--text-accent);
+}
+
+.port-filter-presets input[type="checkbox"] {
+  accent-color: var(--accent);
+}
+
+.port-filter-custom {
+  display: flex;
+  gap: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  margin-top: 8px;
+}
+
+.port-filter-custom input {
+  width: 80px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.port-filter-custom input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.port-custom-add {
+  background: var(--bg-card);
+  color: var(--text-accent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.port-custom-add:hover {
+  background: rgba(74, 158, 255, 0.2);
+  border-color: var(--accent);
+}
+
+/* ===== Protocol Toggle ===== */
+.proto-btn-group {
+  display: flex;
+  gap: 2px;
+}
+
+.proto-btn {
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.proto-btn:first-child {
+  border-radius: var(--radius) 0 0 var(--radius);
+}
+
+.proto-btn:last-child {
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+.proto-btn:not(:first-child) {
+  border-left: none;
+}
+
+.proto-btn:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
+.proto-btn.active {
+  background: rgba(74, 158, 255, 0.2);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.proto-btn.active + .proto-btn {
+  border-left-color: var(--accent);
+}
+
+/* ===== Reset Filter ===== */
+.reset-filter-btn {
+  background: none;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 11px;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.reset-filter-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--border-glow);
+  background: var(--bg-card);
 }
 
 /* ===== Stats Cards ===== */

@@ -44,14 +44,46 @@
 
         <div class="control-group" id="eps-control">
           <span class="control-label">EPS</span>
-          <input type="range" id="eps-slider" min="1" max="500" value="10" step="1">
-          <span class="eps-value" id="eps-value">10</span>
+          <input type="number" id="eps-input" min="1" max="500" value="10" step="1" class="num-input">
         </div>
 
         <div class="control-group">
           <span class="control-label">Alert PPS</span>
-          <input type="range" id="pps-threshold-slider" min="1" max="100" value="10" step="1">
-          <span class="eps-value" id="pps-threshold-value">10</span>
+          <input type="number" id="pps-threshold-input" min="1" max="100" value="10" step="1" class="num-input">
+        </div>
+
+        <div class="control-group" id="port-filter-control">
+          <span class="control-label">Port</span>
+          <div class="port-filter-wrapper">
+            <button class="port-filter-btn" id="port-filter-btn">All</button>
+            <div class="port-filter-dropdown" id="port-filter-dropdown">
+              <div class="port-filter-presets" id="port-filter-presets"></div>
+              <div class="port-filter-custom">
+                <input type="number" id="port-custom-input" placeholder="Port" min="1" max="65535">
+                <button class="port-custom-add" id="port-custom-add">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <span class="control-label">Proto</span>
+          <div class="proto-btn-group">
+            <button class="proto-btn active" data-proto="TCP">TCP</button>
+            <button class="proto-btn active" data-proto="UDP">UDP</button>
+            <button class="proto-btn active" data-proto="ICMP">ICMP</button>
+          </div>
+        </div>
+
+        <div class="control-group" id="nic-control">
+          <span class="control-label">NIC</span>
+          <select id="nic-select" disabled>
+            <option value="">-</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <button class="reset-filter-btn" id="reset-filter-btn">Reset</button>
         </div>
 
         <div class="conn-indicator">

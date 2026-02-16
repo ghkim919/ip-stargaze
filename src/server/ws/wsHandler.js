@@ -1,7 +1,7 @@
 import config from '../config.js';
 import { VALIDATION_RULES } from '../config/constants.js';
 import { MESSAGE_TYPES, ERROR_MESSAGES } from '../../shared/protocol.js';
-import { validateWindow, validateSubnetLevel, validateScenario, validateEPS, parseEPS } from './messageValidator.js';
+import { validateWindow, validateSubnetLevel, validateScenario, validateEPS, parseEPS, validateFilter, validateInterface, getAvailableInterfaces } from './messageValidator.js';
 
 export default class WsHandler {
   #clients = new Set();
@@ -101,6 +101,43 @@ export default class WsHandler {
         break;
       }
 
+      case MESSAGE_TYPES.SET_FILTER: {
+        if (validateFilter(msg.value)) {
+          this.#aggregator.setFilter({
+            ports: msg.value.ports || [],
+            protocols: msg.value.protocols || [],
+          });
+          this.#broadcastConfig();
+        } else {
+          this.#send(socket, { type: MESSAGE_TYPES.ERROR, data: { message: 'Invalid filter' } });
+        }
+        break;
+      }
+
+      case MESSAGE_TYPES.GET_INTERFACES: {
+        const interfaces = getAvailableInterfaces();
+        this.#send(socket, { type: MESSAGE_TYPES.INTERFACES, data: interfaces });
+        break;
+      }
+
+      case MESSAGE_TYPES.SET_INTERFACE: {
+        if (this.#captureManager.mode !== 'live') {
+          this.#send(socket, { type: MESSAGE_TYPES.ERROR, data: { message: 'Interface change is only available in live mode' } });
+          break;
+        }
+        if (validateInterface(msg.value)) {
+          try {
+            this.#captureManager.setInterface(msg.value);
+            this.#broadcastConfig();
+          } catch (err) {
+            this.#send(socket, { type: MESSAGE_TYPES.ERROR, data: { message: err.message } });
+          }
+        } else {
+          this.#send(socket, { type: MESSAGE_TYPES.ERROR, data: { message: 'Invalid interface' } });
+        }
+        break;
+      }
+
       default:
         this.#send(socket, { type: MESSAGE_TYPES.ERROR, data: { message: ERROR_MESSAGES.UNKNOWN_TYPE(msg.type) } });
     }
@@ -114,6 +151,7 @@ export default class WsHandler {
       scenario: this.#captureManager.scenario,
       iface: config.interface,
       eventsPerSecond: this.#captureManager.eventsPerSecond,
+      filter: this.#aggregator.filter,
     };
   }
 
