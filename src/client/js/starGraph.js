@@ -1,6 +1,6 @@
 import { VISUAL_CONFIG, PPS_THRESHOLDS } from './config.js';
 import HighlightManager from './helpers/highlightManager.js';
-import { createSimulation, updateLinkDistance } from './simulation/forceSimulation.js';
+import { createSimulation, updateLinkDistance, clampNodesToHubDistance } from './simulation/forceSimulation.js';
 import GraphDataManager from './data/graphDataManager.js';
 import { renderHub } from './rendering/hubRenderer.js';
 import { renderLinks, renderLinkLabels, renderWaitingMessage } from './rendering/linkRenderer.js';
@@ -101,6 +101,8 @@ function makeDrag() {
 
 function ticked() {
   updateRipples(nodesGroup, dataManager.nodes, getPpsThresholds());
+
+  clampNodesToHubDistance(dataManager.nodes, dataManager.hubNode, centerX, centerY);
 
   updatePositions({
     linksGroup,

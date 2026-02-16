@@ -145,6 +145,51 @@ export function createSimulation(onTick, getHubNode, getCenterX, getCenterY) {
   return sim;
 }
 
+export function clampNodesToHubDistance(nodes, hubNode, centerX, centerY) {
+  const hx = hubNode?.x ?? centerX;
+  const hy = hubNode?.y ?? centerY;
+  const hubR = hubNode?.radius ?? VISUAL_CONFIG.HUB_RADIUS;
+
+  const clusterCounts = new Map();
+  for (const node of nodes) {
+    if (node.isHub || !node.parentNetwork || !node.inCluster) continue;
+    const key = node.parentNetwork;
+    clusterCounts.set(key, (clusterCounts.get(key) || 0) + 1);
+  }
+
+  for (const node of nodes) {
+    if (node.isHub || node.fx != null) continue;
+
+    const nodeRadius = node.radius || VISUAL_CONFIG.MIN_RADIUS;
+    let minDist;
+
+    if (node.parentNetwork && node.inCluster) {
+      const count = clusterCounts.get(node.parentNetwork) || 1;
+      minDist = VISUAL_CONFIG.HUB_CLAMP_BASE + Math.sqrt(count) * VISUAL_CONFIG.HUB_CLAMP_PER_NODE + nodeRadius + hubR;
+    } else {
+      minDist = VISUAL_CONFIG.HUB_CLAMP_BASE + nodeRadius + hubR;
+    }
+
+    const dx = node.x - hx;
+    const dy = node.y - hy;
+    const dist = Math.hypot(dx, dy);
+
+    if (dist < minDist) {
+      if (dist === 0) {
+        const angle = Math.random() * Math.PI * 2;
+        node.x = hx + Math.cos(angle) * minDist;
+        node.y = hy + Math.sin(angle) * minDist;
+      } else {
+        const ratio = minDist / dist;
+        node.x = hx + dx * ratio;
+        node.y = hy + dy * ratio;
+      }
+      node.vx *= VISUAL_CONFIG.HUB_CLAMP_VELOCITY_DAMPING;
+      node.vy *= VISUAL_CONFIG.HUB_CLAMP_VELOCITY_DAMPING;
+    }
+  }
+}
+
 export function updateLinkDistance(sim) {
   sim.force('link').distance(d => {
     const target = getLinkTargetNode(d);
