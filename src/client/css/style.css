@@ -1545,6 +1545,23 @@ input[type="range"]:disabled {
   background: #fff;
 }
 
+/* ===== Settings Tooltip (fixed position, escapes overflow) ===== */
+.settings-tooltip {
+  position: fixed;
+  background: var(--tooltip-bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-glow);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  font-size: 12px;
+  line-height: 1.4;
+  max-width: 200px;
+  white-space: normal;
+  z-index: 400;
+  pointer-events: none;
+  box-shadow: 0 4px 16px var(--tooltip-shadow);
+}
+
 /* ===== Agents Button ===== */
 .agents-btn {
   display: flex;

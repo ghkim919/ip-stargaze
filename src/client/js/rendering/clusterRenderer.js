@@ -2,7 +2,7 @@ import { VISUAL_CONFIG } from '../config.js';
 
 const d3 = window.d3;
 
-export function computePaddedHull(nodes, padding) {
+function computePaddedHull(nodes, padding) {
   if (nodes.length < 2) return null;
 
   const points = [];
@@ -17,7 +17,7 @@ export function computePaddedHull(nodes, padding) {
   return d3.polygonHull(points);
 }
 
-export function hullPath(hull) {
+function hullPath(hull) {
   if (!hull || hull.length < 3) return '';
   const lineGenerator = d3.line()
     .x(d => d[0])
@@ -84,7 +84,7 @@ export function renderClusters(clustersGroup, nodesData) {
     .attr('text-anchor', 'middle')
     .attr('fill', d => d.color)
     .attr('fill-opacity', 0.7)
-    .attr('font-size', '10px')
+    .attr('font-size', `${VISUAL_CONFIG.CLUSTER_LABEL_FONT_SIZE}px`)
     .attr('font-weight', '600')
     .text(d => d.name);
 }

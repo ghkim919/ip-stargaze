@@ -15,6 +15,7 @@ const DEFAULTS = {
   RIPPLE_ENABLED: true,
   CLUSTER_HULL_VISIBLE: true,
   CLUSTER_HULL_PADDING: 18,
+  CLUSTER_LABEL_FONT_SIZE: 10,
   FORCE_CHARGE_STRENGTH: -180,
   LINK_DISTANCE_NORMAL: 160,
   LINK_DISTANCE_CLUSTER: 250,
@@ -24,51 +25,52 @@ const SETTING_GROUPS = [
   {
     label: 'Node',
     items: [
-      { key: 'MIN_RADIUS', label: 'Min Radius', type: 'range', min: 4, max: 30, step: 1, unit: 'px' },
-      { key: 'MAX_RADIUS', label: 'Max Radius', type: 'range', min: 20, max: 80, step: 2, unit: 'px' },
-      { key: 'HIGHLIGHT_SCALE', label: 'Highlight Scale', type: 'range', min: 1.0, max: 2.0, step: 0.1, unit: 'x' },
+      { key: 'MIN_RADIUS', label: 'Min Radius', type: 'range', min: 4, max: 50, step: 1, unit: 'px', desc: 'Minimum circle size for low-traffic subnets' },
+      { key: 'MAX_RADIUS', label: 'Max Radius', type: 'range', min: 20, max: 120, step: 2, unit: 'px', desc: 'Maximum circle size for high-traffic subnets' },
+      { key: 'HIGHLIGHT_SCALE', label: 'Highlight Scale', type: 'range', min: 1.0, max: 3.0, step: 0.1, unit: 'x', desc: 'Scale factor when a node is selected' },
     ],
   },
   {
     label: 'Link',
     items: [
-      { key: 'LINK_WIDTH_MIN', label: 'Min Width', type: 'range', min: 0.5, max: 6, step: 0.5, unit: 'px' },
-      { key: 'LINK_WIDTH_MAX', label: 'Max Width', type: 'range', min: 2, max: 12, step: 0.5, unit: 'px' },
-      { key: 'LINK_OPACITY', label: 'Opacity', type: 'range', min: 0.1, max: 1.0, step: 0.05, unit: '' },
+      { key: 'LINK_WIDTH_MIN', label: 'Min Width', type: 'range', min: 0.5, max: 10, step: 0.5, unit: 'px', desc: 'Thinnest link line for low-traffic connections' },
+      { key: 'LINK_WIDTH_MAX', label: 'Max Width', type: 'range', min: 2, max: 20, step: 0.5, unit: 'px', desc: 'Thickest link line for high-traffic connections' },
+      { key: 'LINK_OPACITY', label: 'Opacity', type: 'range', min: 0.1, max: 1.0, step: 0.05, unit: '', desc: 'Base transparency of link lines' },
     ],
   },
   {
     label: 'Label',
     items: [
-      { key: 'LABEL_FONT_SIZE', label: 'Font Size', type: 'range', min: 8, max: 18, step: 1, unit: 'px' },
+      { key: 'LABEL_FONT_SIZE', label: 'Font Size', type: 'range', min: 8, max: 28, step: 1, unit: 'px', desc: 'Text size of subnet labels on nodes' },
     ],
   },
   {
     label: 'Glow',
     items: [
-      { key: 'GLOW_ENABLED', label: 'Enabled', type: 'toggle' },
-      { key: 'GLOW_OPACITY_HIGH', label: 'High Opacity', type: 'range', min: 0.1, max: 1.0, step: 0.05, unit: '' },
+      { key: 'GLOW_ENABLED', label: 'Enabled', type: 'toggle', desc: 'Toggle glow effect around active nodes' },
+      { key: 'GLOW_OPACITY_HIGH', label: 'High Opacity', type: 'range', min: 0.1, max: 1.0, step: 0.05, unit: '', desc: 'Glow brightness for high-traffic nodes' },
     ],
   },
   {
     label: 'Ripple',
     items: [
-      { key: 'RIPPLE_ENABLED', label: 'Enabled', type: 'toggle' },
+      { key: 'RIPPLE_ENABLED', label: 'Enabled', type: 'toggle', desc: 'Toggle ripple animation on active nodes' },
     ],
   },
   {
     label: 'Cluster',
     items: [
-      { key: 'CLUSTER_HULL_VISIBLE', label: 'Hull Visible', type: 'toggle' },
-      { key: 'CLUSTER_HULL_PADDING', label: 'Hull Padding', type: 'range', min: 5, max: 50, step: 1, unit: 'px' },
+      { key: 'CLUSTER_HULL_VISIBLE', label: 'Hull Visible', type: 'toggle', desc: 'Show/hide the convex hull boundary around clusters' },
+      { key: 'CLUSTER_HULL_PADDING', label: 'Hull Padding', type: 'range', min: 5, max: 80, step: 1, unit: 'px', desc: 'Extra space between nodes and the hull boundary' },
+      { key: 'CLUSTER_LABEL_FONT_SIZE', label: 'Label Size', type: 'range', min: 6, max: 24, step: 1, unit: 'px', desc: 'Text size of cluster name labels above hulls' },
     ],
   },
   {
     label: 'Force',
     items: [
-      { key: 'FORCE_CHARGE_STRENGTH', label: 'Charge', type: 'range', min: -400, max: -20, step: 10, unit: '' },
-      { key: 'LINK_DISTANCE_NORMAL', label: 'Link Dist', type: 'range', min: 80, max: 350, step: 10, unit: 'px' },
-      { key: 'LINK_DISTANCE_CLUSTER', label: 'Cluster Dist', type: 'range', min: 120, max: 450, step: 10, unit: 'px' },
+      { key: 'FORCE_CHARGE_STRENGTH', label: 'Charge', type: 'range', min: -800, max: -20, step: 10, unit: '', desc: 'Repulsion between nodes (more negative = stronger)' },
+      { key: 'LINK_DISTANCE_NORMAL', label: 'Link Dist', type: 'range', min: 80, max: 600, step: 10, unit: 'px', desc: 'Target distance for hub-to-node links' },
+      { key: 'LINK_DISTANCE_CLUSTER', label: 'Cluster Dist', type: 'range', min: 120, max: 700, step: 10, unit: 'px', desc: 'Target distance for cluster peer links' },
     ],
   },
 ];
@@ -84,6 +86,7 @@ let panelEl = null;
 let bodyEl = null;
 let restartSimulationFn = null;
 let saveTimer = null;
+let tooltipEl = null;
 
 export function init(restartSimulation) {
   restartSimulationFn = restartSimulation;
@@ -140,6 +143,10 @@ function render() {
       const label = document.createElement('label');
       label.className = 'settings-item-label';
       label.textContent = item.label;
+      if (item.desc) {
+        label.addEventListener('mouseenter', () => showTooltip(label, item.desc));
+        label.addEventListener('mouseleave', hideTooltip);
+      }
       row.appendChild(label);
 
       if (item.type === 'toggle') {
@@ -324,4 +331,23 @@ function resetAll() {
   localStorage.removeItem(STORAGE_KEY);
   render();
   if (restartSimulationFn) restartSimulationFn();
+}
+
+function showTooltip(anchor, text) {
+  hideTooltip();
+  tooltipEl = document.createElement('div');
+  tooltipEl.className = 'settings-tooltip';
+  tooltipEl.textContent = text;
+  document.body.appendChild(tooltipEl);
+  const rect = anchor.getBoundingClientRect();
+  const tipRect = tooltipEl.getBoundingClientRect();
+  tooltipEl.style.top = `${rect.top + rect.height / 2 - tipRect.height / 2}px`;
+  tooltipEl.style.left = `${rect.left - tipRect.width - 10}px`;
+}
+
+function hideTooltip() {
+  if (tooltipEl) {
+    tooltipEl.remove();
+    tooltipEl = null;
+  }
 }
