@@ -4,6 +4,8 @@ import * as detailPanel from './detailPanel.js';
 import { WEBSOCKET_CONFIG } from './config.js';
 import { MESSAGE_TYPES } from '/shared/protocol.js';
 import { isLiveMode } from './helpers/modeHelpers.js';
+import { initThemeToggle } from './helpers/themeHelpers.js';
+import { clearColorCache } from './utils.js';
 
 const PORT_LABELS = {
   21: 'FTP', 22: 'SSH', 25: 'SMTP', 53: 'DNS',
@@ -235,6 +237,9 @@ function initApp() {
 
   detailPanel.init();
   initControls();
+  initThemeToggle(() => {
+    clearColorCache();
+  });
   dashboard.setConnectionStatus('disconnected');
   connect();
 

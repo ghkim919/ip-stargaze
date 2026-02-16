@@ -1,5 +1,6 @@
 import { VISUAL_CONFIG } from '../config.js';
 import { getLinkTargetId } from './linkHelpers.js';
+import { getCssVar } from './themeHelpers.js';
 
 export default class HighlightManager {
   #hoveredNodeId = null;
@@ -52,9 +53,9 @@ export default class HighlightManager {
   }
 
   getLinkLabelFill(link) {
-    if (!this.#hoveredNodeId) return '#8899aa';
+    if (!this.#hoveredNodeId) return getCssVar('--text-secondary');
     const tid = getLinkTargetId(link);
-    return tid === this.#hoveredNodeId ? '#e2e8f0' : '#8899aa';
+    return tid === this.#hoveredNodeId ? getCssVar('--text-primary') : getCssVar('--text-secondary');
   }
 
   getLabelOpacity(nodeId) {

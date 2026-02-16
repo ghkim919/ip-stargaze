@@ -1,5 +1,6 @@
 import { VISUAL_CONFIG } from '../config.js';
 import { subnetAbbrev } from '../utils.js';
+import { getCssVar } from '../helpers/themeHelpers.js';
 
 export function renderNodeLabels(labelsGroup, subnetNodes, highlight) {
   const labels = labelsGroup.selectAll('.ray-label')
@@ -14,7 +15,7 @@ export function renderNodeLabels(labelsGroup, subnetNodes, highlight) {
     .append('text')
     .attr('class', 'ray-label')
     .attr('font-size', '11px')
-    .attr('fill', '#a0b4cc')
+    .attr('fill', getCssVar('--label-fill'))
     .attr('dominant-baseline', 'middle')
     .attr('opacity', 0);
 

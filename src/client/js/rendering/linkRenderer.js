@@ -1,5 +1,6 @@
 import { VISUAL_CONFIG } from '../config.js';
 import { formatNumber } from '../utils.js';
+import { getCssVar } from '../helpers/themeHelpers.js';
 
 export function renderLinks(linksGroup, linksData, highlight) {
   const links = linksGroup.selectAll('.ray-link')
@@ -34,7 +35,7 @@ export function renderLinkLabels(linkLabelsGroup, linksData, highlight) {
     .attr('font-size', '9px')
     .attr('text-anchor', 'middle')
     .attr('dominant-baseline', 'middle')
-    .attr('fill', '#8899aa')
+    .attr('fill', getCssVar('--text-secondary'))
     .attr('pointer-events', 'none');
 
   ll.merge(llEnter)
@@ -56,7 +57,7 @@ export function renderWaitingMessage(container, show, centerX, centerY) {
     .attr('x', centerX)
     .attr('y', centerY + 80)
     .attr('text-anchor', 'middle')
-    .attr('fill', '#4a6a8a')
+    .attr('fill', getCssVar('--text-muted'))
     .attr('font-size', '14px')
     .attr('opacity', 0)
     .text('Waiting for traffic...')

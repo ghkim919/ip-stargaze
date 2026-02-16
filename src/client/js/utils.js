@@ -1,3 +1,5 @@
+import { getCurrentTheme } from './helpers/themeHelpers.js';
+
 const colorCache = new Map();
 
 const PRIVATE_RANGES = ['10.', '172.16.', '172.17.', '172.18.', '172.19.',
@@ -26,10 +28,13 @@ function isKnownService(network) {
 }
 
 export function getSubnetColor(network) {
-  if (colorCache.has(network)) {
-    return colorCache.get(network);
+  const theme = getCurrentTheme();
+  const cacheKey = `${theme}:${network}`;
+  if (colorCache.has(cacheKey)) {
+    return colorCache.get(cacheKey);
   }
 
+  const isLight = theme === 'light';
   let hue;
   let saturation = 70;
   let lightness = 60;
@@ -37,19 +42,21 @@ export function getSubnetColor(network) {
   if (isPrivateNetwork(network)) {
     hue = 200 + (hashString(network) % 40);
     saturation = 75;
-    lightness = 55;
+    lightness = isLight ? 40 : 55;
   } else if (isKnownService(network)) {
     hue = 120 + (hashString(network) % 40);
     saturation = 65;
-    lightness = 55;
+    lightness = isLight ? 40 : 55;
   } else {
     hue = hashString(network) % 360;
     saturation = 60 + (hashString(network + 'sat') % 20);
-    lightness = 50 + (hashString(network + 'lit') % 15);
+    lightness = isLight
+      ? 35 + (hashString(network + 'lit') % 15)
+      : 50 + (hashString(network + 'lit') % 15);
   }
 
   const color = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-  colorCache.set(network, color);
+  colorCache.set(cacheKey, color);
   return color;
 }
 
