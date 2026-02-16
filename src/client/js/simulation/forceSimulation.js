@@ -70,7 +70,7 @@ function createClusterForce(getHubNode, getCenterX, getCenterY) {
     const hubY = hub ? hub.y : getCenterY();
     for (const [key, center] of clusterCenters) {
       const count = clusterCounts.get(key);
-      const minDistFromHub = VISUAL_CONFIG.HUB_PUSH_BASE + count * VISUAL_CONFIG.HUB_PUSH_PER_NODE;
+      const minDistFromHub = VISUAL_CONFIG.HUB_PUSH_BASE + Math.sqrt(count) * VISUAL_CONFIG.HUB_PUSH_PER_NODE;
       const dx = center.x - hubX;
       const dy = center.y - hubY;
       const dist = Math.hypot(dx, dy) || 1;
