@@ -14,108 +14,116 @@
       <span id="mode-badge" class="mode-badge mode-sim">SIMULATION</span>
 
       <div class="controls">
-        <div class="control-group">
-          <span class="control-label">Window</span>
-          <select id="window-select">
-            <option value="1m">1 min</option>
-            <option value="5m" selected>5 min</option>
-            <option value="15m">15 min</option>
-            <option value="1h">1 hour</option>
-          </select>
-        </div>
-
-        <div class="control-group">
-          <span class="control-label">Subnet</span>
-          <div class="subnet-btn-group">
-            <button class="subnet-btn" data-level="/8">/8</button>
-            <button class="subnet-btn active" data-level="/16">/16</button>
-            <button class="subnet-btn" data-level="/24">/24</button>
+        <div class="control-section control-section--view">
+          <div class="control-group">
+            <span class="control-label">Window</span>
+            <select id="window-select">
+              <option value="1m">1 min</option>
+              <option value="5m" selected>5 min</option>
+              <option value="15m">15 min</option>
+              <option value="1h">1 hour</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <span class="control-label">Subnet</span>
+            <div class="subnet-btn-group">
+              <button class="subnet-btn" data-level="/8">/8</button>
+              <button class="subnet-btn active" data-level="/16">/16</button>
+              <button class="subnet-btn" data-level="/24">/24</button>
+            </div>
+          </div>
+          <div class="control-group">
+            <span class="control-label">Alert</span>
+            <input type="number" id="pps-threshold-input" min="1" max="100" value="10" step="1" class="num-input">
           </div>
         </div>
 
-        <div class="control-group">
-          <span class="control-label">Scenario</span>
-          <select id="scenario-select">
-            <option value="normal" selected>Normal</option>
-            <option value="attack">Attack</option>
-            <option value="scan">Scan</option>
-          </select>
-        </div>
-
-        <div class="control-group" id="eps-control">
-          <span class="control-label">EPS</span>
-          <input type="number" id="eps-input" min="1" max="500" value="10" step="1" class="num-input">
-        </div>
-
-        <div class="control-group">
-          <span class="control-label">Alert PPS</span>
-          <input type="number" id="pps-threshold-input" min="1" max="100" value="10" step="1" class="num-input">
-        </div>
-
-        <div class="control-group" id="port-filter-control">
-          <span class="control-label">Port</span>
-          <div class="port-filter-wrapper">
-            <button class="port-filter-btn" id="port-filter-btn">All</button>
-            <div class="port-filter-dropdown" id="port-filter-dropdown">
-              <div class="port-filter-presets" id="port-filter-presets"></div>
-              <div class="port-filter-custom">
-                <input type="number" id="port-custom-input" placeholder="Port" min="1" max="65535">
-                <button class="port-custom-add" id="port-custom-add">+</button>
+        <div class="control-section control-section--filter">
+          <div class="control-group" id="port-filter-control">
+            <span class="control-label">Port</span>
+            <div class="port-filter-wrapper">
+              <button class="port-filter-btn" id="port-filter-btn">All</button>
+              <div class="port-filter-dropdown" id="port-filter-dropdown">
+                <div class="port-filter-presets" id="port-filter-presets"></div>
+                <div class="port-filter-custom">
+                  <input type="number" id="port-custom-input" placeholder="Port" min="1" max="65535">
+                  <button class="port-custom-add" id="port-custom-add">+</button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-
-        <div class="control-group">
-          <span class="control-label">Proto</span>
-          <div class="proto-btn-group">
-            <button class="proto-btn active" data-proto="TCP">TCP</button>
-            <button class="proto-btn active" data-proto="UDP">UDP</button>
-            <button class="proto-btn active" data-proto="ICMP">ICMP</button>
+          <div class="control-group">
+            <span class="control-label">Proto</span>
+            <div class="proto-btn-group">
+              <button class="proto-btn active" data-proto="TCP">TCP</button>
+              <button class="proto-btn active" data-proto="UDP">UDP</button>
+              <button class="proto-btn active" data-proto="ICMP">ICMP</button>
+            </div>
+          </div>
+          <div class="control-group">
+            <button class="reset-filter-btn" id="reset-filter-btn">Reset</button>
           </div>
         </div>
 
-        <div class="control-group" id="nic-control">
-          <span class="control-label">NIC</span>
-          <select id="nic-select" disabled>
-            <option value="">-</option>
-          </select>
+        <div class="control-section control-section--sim" id="sim-section">
+          <div class="control-group">
+            <span class="control-label">Scenario</span>
+            <select id="scenario-select">
+              <option value="normal" selected>Normal</option>
+              <option value="attack">Attack</option>
+              <option value="scan">Scan</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <span class="control-label">EPS</span>
+            <input type="number" id="eps-input" min="1" max="500" value="10" step="1" class="num-input">
+          </div>
         </div>
 
-        <div class="control-group">
-          <button class="reset-filter-btn" id="reset-filter-btn">Reset</button>
-        </div>
-
-        <div class="conn-indicator">
-          <span class="conn-dot conn-disconnected" id="conn-dot"></span>
-          <span id="conn-text">Disconnected</span>
+        <div class="control-section control-section--system">
+          <div class="control-group" id="nic-control">
+            <span class="control-label">NIC</span>
+            <select id="nic-select" disabled>
+              <option value="">-</option>
+            </select>
+          </div>
+          <div class="conn-indicator">
+            <span class="conn-dot conn-disconnected" id="conn-dot"></span>
+            <span id="conn-text">Disconnected</span>
+          </div>
         </div>
       </div>
     </header>
 
     <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-card-label">Total Packets</div>
+      <div class="stat-card" data-tooltip="Total packets captured within the current monitoring window">
+        <div class="stat-card-label">Packets</div>
         <div class="stat-card-value" id="stat-packets">0</div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" data-tooltip="Number of distinct source IP addresses observed in this window">
         <div class="stat-card-label">Unique IPs</div>
         <div class="stat-card-value" id="stat-ips">0</div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" data-tooltip="Packets Per Second — average throughput rate over the window period">
         <div class="stat-card-label">PPS</div>
         <div class="stat-card-value" id="stat-pps">0</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-card-label">Active Subnets</div>
-        <div class="stat-card-value" id="stat-subnets">0</div>
+      <div class="stat-card" data-tooltip="Total network traffic volume (bytes) within the current window">
+        <div class="stat-card-label">Traffic</div>
+        <div class="stat-card-value" id="stat-traffic">0 B</div>
       </div>
     </div>
 
     <div class="top-subnets-row">
       <div class="top-subnets-bar">
+        <span class="window-badge" id="window-badge">Last 5 min</span>
+        <span class="top-subnets-separator"></span>
+        <span class="top-subnets-count" id="top-subnets-count">0 subnets</span>
+        <span class="top-subnets-separator"></span>
         <span class="top-subnets-title">Top:</span>
         <span id="top-subnets">-</span>
+        <span class="top-subnets-spacer"></span>
+        <div class="protocol-mini-bar" id="protocol-mini-bar"></div>
       </div>
     </div>
 

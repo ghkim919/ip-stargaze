@@ -98,6 +98,18 @@ body {
   flex-wrap: wrap;
 }
 
+/* ===== Control Sections ===== */
+.control-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.control-section + .control-section {
+  border-left: 1px solid var(--border);
+  padding-left: 16px;
+}
+
 .control-group {
   display: flex;
   align-items: center;
@@ -480,11 +492,32 @@ input[type="range"]:disabled {
   padding: 12px 16px;
   text-align: center;
   transition: border-color var(--transition);
+  position: relative;
+  cursor: default;
 }
 
 .stat-card:hover {
   border-color: var(--border-glow);
   box-shadow: 0 0 16px rgba(74, 158, 255, 0.06);
+}
+
+.stat-card[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 8px);
+  transform: translateX(-50%);
+  background: rgba(10, 14, 39, 0.95);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-glow);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+  z-index: 100;
+  pointer-events: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
 .stat-card-label {
@@ -519,6 +552,37 @@ input[type="range"]:disabled {
   overflow-x: auto;
 }
 
+/* Window Badge */
+.window-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-accent);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: rgba(74, 158, 255, 0.08);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.top-subnets-separator {
+  width: 1px;
+  height: 14px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.top-subnets-count {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.top-subnets-spacer {
+  flex: 1;
+}
+
 .top-subnets-title {
   color: var(--text-secondary);
   font-weight: 600;
@@ -536,6 +600,64 @@ input[type="range"]:disabled {
 .top-subnet-pct {
   color: var(--text-accent);
   font-weight: 600;
+}
+
+/* ===== Protocol Mini Bar ===== */
+.protocol-mini-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.protocol-mini-segments {
+  display: flex;
+  height: 4px;
+  width: 80px;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.protocol-mini-segment {
+  height: 100%;
+  transition: width 300ms ease;
+}
+
+.protocol-mini-segment.proto-tcp {
+  background: var(--proto-tcp);
+}
+
+.protocol-mini-segment.proto-udp {
+  background: var(--proto-udp);
+}
+
+.protocol-mini-segment.proto-icmp {
+  background: var(--proto-icmp);
+}
+
+.protocol-mini-labels {
+  display: flex;
+  gap: 8px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.protocol-mini-label {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.protocol-mini-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+
+.protocol-mini-pct {
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ===== Main Area ===== */
@@ -1000,6 +1122,19 @@ input[type="range"]:disabled {
     margin-left: 0;
     width: 100%;
     justify-content: flex-start;
+  }
+
+  .control-section + .control-section {
+    border-left: none;
+    padding-left: 0;
+  }
+
+  .control-section {
+    flex-wrap: wrap;
+  }
+
+  .protocol-mini-bar {
+    display: none;
   }
 
   .stats-row {

@@ -121,11 +121,6 @@ function applyConfig(config) {
     const live = isLiveMode(config);
     modeEl.textContent = live ? 'LIVE' : 'SIMULATION';
     modeEl.className = 'mode-badge ' + (live ? 'mode-live' : 'mode-sim');
-
-    const scenarioSelect = document.getElementById('scenario-select');
-    if (scenarioSelect) {
-      scenarioSelect.disabled = live;
-    }
   }
 
   if (config.window) {
@@ -153,12 +148,14 @@ function applyConfig(config) {
     }
   }
 
-  const epsControl = document.getElementById('eps-control');
-  if (epsControl) {
+  const simSection = document.getElementById('sim-section');
+  if (simSection) {
     const live = isLiveMode(config);
+    simSection.style.opacity = live ? '0.4' : '1';
+    const scenarioSelect = document.getElementById('scenario-select');
     const epsInput = document.getElementById('eps-input');
+    if (scenarioSelect) scenarioSelect.disabled = live;
     if (epsInput) epsInput.disabled = live;
-    epsControl.style.opacity = live ? '0.4' : '1';
   }
 
   if (config.filter) {
