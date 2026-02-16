@@ -59,6 +59,7 @@ export function updateRipples(nodesGroup, nodesData, ppsThresholds) {
 }
 
 export function computeRippleInterval(pps, ppsThresholds) {
+  if (!VISUAL_CONFIG.RIPPLE_ENABLED) return 0;
   const { high, mid, low } = ppsThresholds;
   if (pps >= high) return VISUAL_CONFIG.RIPPLE_INTERVAL_HIGH;
   if (pps >= mid) return VISUAL_CONFIG.RIPPLE_INTERVAL_MID;

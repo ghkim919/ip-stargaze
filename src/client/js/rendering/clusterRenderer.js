@@ -27,6 +27,11 @@ export function hullPath(hull) {
 }
 
 export function renderClusters(clustersGroup, nodesData) {
+  if (!VISUAL_CONFIG.CLUSTER_HULL_VISIBLE) {
+    clustersGroup.selectAll('.cluster-bg').remove();
+    return;
+  }
+
   const clusterGroups = new Map();
   nodesData.forEach(d => {
     if (d.isHub || !d.parentNetwork) return;

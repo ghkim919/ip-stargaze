@@ -64,7 +64,7 @@ export default class HighlightManager {
   }
 
   getLabelFontSize(nodeId) {
-    return this.#hoveredNodeId && nodeId === this.#hoveredNodeId ? VISUAL_CONFIG.HIGHLIGHT_FONT_SIZE : '11px';
+    return this.#hoveredNodeId && nodeId === this.#hoveredNodeId ? VISUAL_CONFIG.HIGHLIGHT_FONT_SIZE : VISUAL_CONFIG.LABEL_FONT_SIZE + 'px';
   }
 
   getLabelFontWeight(nodeId) {

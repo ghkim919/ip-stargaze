@@ -252,3 +252,10 @@ export function setPpsThreshold(value) {
   ppsThresholdMid = value * PPS_THRESHOLDS.DEFAULT_MID_MULTIPLIER;
   ppsThresholdLow = value * PPS_THRESHOLDS.DEFAULT_LOW_MULTIPLIER;
 }
+
+export function restartSimulation() {
+  if (!simulation) return;
+  updateLinkDistance(simulation);
+  simulation.force('charge').strength(d => d.isHub ? 0 : VISUAL_CONFIG.FORCE_CHARGE_STRENGTH);
+  simulation.alpha(0.3).restart();
+}

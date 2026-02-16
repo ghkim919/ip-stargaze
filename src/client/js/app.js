@@ -3,6 +3,7 @@ import * as dashboard from './dashboard.js';
 import * as detailPanel from './detailPanel.js';
 import * as agentPanel from './agentPanel.js';
 import * as sourceTabBar from './sourceTabBar.js';
+import * as settingsPanel from './settingsPanel.js';
 import { WEBSOCKET_CONFIG } from './config.js';
 import { MESSAGE_TYPES } from '/shared/protocol.js';
 import { isLiveMode } from './helpers/modeHelpers.js';
@@ -273,6 +274,7 @@ function initApp() {
   detailPanel.init();
   agentPanel.init(send);
   sourceTabBar.init(send, () => agentPanel.open());
+  settingsPanel.init(starGraph.restartSimulation);
   initControls();
   initThemeToggle(() => {
     clearColorCache();
@@ -292,6 +294,13 @@ function initApp() {
       const agentsBtn = document.getElementById('agents-btn');
       if (panel && !panel.contains(e.target) && e.target !== agentsBtn && !agentsBtn?.contains(e.target)) {
         agentPanel.close();
+      }
+    }
+    if (settingsPanel.isVisible()) {
+      const panel = document.getElementById('settings-panel');
+      const settingsBtn = document.getElementById('settings-btn');
+      if (panel && !panel.contains(e.target) && e.target !== settingsBtn && !settingsBtn?.contains(e.target)) {
+        settingsPanel.close();
       }
     }
   });

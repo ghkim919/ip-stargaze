@@ -97,6 +97,11 @@ export const V = {
   WAVE_STROKE_WIDTH: 2.5,
   WAVE_DURATION: 1200,
   WAVE_INITIAL_OPACITY: 0.7,
+
+  LABEL_FONT_SIZE: 11,
+  GLOW_ENABLED: true,
+  RIPPLE_ENABLED: true,
+  CLUSTER_HULL_VISIBLE: true,
 };
 
 export const PPS = {

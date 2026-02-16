@@ -44,6 +44,7 @@ export function renderNodes(nodesGroup, subnetNodes, highlight, makeDrag, ppsToA
     .attr('r', d => d.radius + (d.pps >= high ? VISUAL_CONFIG.GLOW_RADIUS_HIGH : d.pps >= mid ? VISUAL_CONFIG.GLOW_RADIUS_MID : VISUAL_CONFIG.GLOW_RADIUS_LOW))
     .attr('fill', d => d.pps >= high ? VISUAL_CONFIG.ALERT_COLOR : d.glowColor)
     .attr('opacity', d => {
+      if (!VISUAL_CONFIG.GLOW_ENABLED) return 0;
       if (d.pps >= high) return VISUAL_CONFIG.GLOW_OPACITY_HIGH;
       if (d.pps >= mid) return VISUAL_CONFIG.GLOW_OPACITY_MID;
       if (d.pps >= low) return VISUAL_CONFIG.GLOW_OPACITY_LOW;

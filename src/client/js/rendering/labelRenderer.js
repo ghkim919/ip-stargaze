@@ -14,7 +14,7 @@ export function renderNodeLabels(labelsGroup, subnetNodes, highlight) {
   const labelsEnter = labels.enter()
     .append('text')
     .attr('class', 'ray-label')
-    .attr('font-size', '11px')
+    .attr('font-size', VISUAL_CONFIG.LABEL_FONT_SIZE + 'px')
     .attr('fill', getCssVar('--label-fill'))
     .attr('dominant-baseline', 'middle')
     .attr('opacity', 0);
