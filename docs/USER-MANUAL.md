@@ -456,7 +456,7 @@ npm install
 | `AGENT_HOST` | 바인딩 호스트 | `0.0.0.0` |
 | `AGENT_MODE` | 동작 모드 (`simulation` / `capture`) | `simulation` |
 | `AGENT_INTERFACE` | 캡처할 네트워크 인터페이스 | `eth0` |
-| `AGENT_API_KEY` | Bearer 토큰 인증 키 | (빈 문자열 - 인증 비활성) |
+| `AGENT_API_KEY` | Bearer 토큰 인증 키 (형식 제한 없음, 자유롭게 지정) | (빈 문자열 - 인증 비활성) |
 | `AGENT_BUFFER_CAPACITY` | Ring Buffer 최대 이벤트 수 | `100000` |
 | `AGENT_LOG_LEVEL` | 로그 레벨 (`info` / `debug`) | `info` |
 
@@ -471,7 +471,7 @@ npm install
   "host": "0.0.0.0",
   "mode": "simulation",
   "interface": "eth0",
-  "apiKey": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "apiKey": "your-api-key-here",
   "bufferCapacity": 100000,
   "logLevel": "info"
 }
@@ -558,7 +558,7 @@ npm run dev:agent
 
 ### 보안 고려사항
 
-- **API Key**: 에이전트에 반드시 `AGENT_API_KEY`를 설정하세요. 미설정 시 모든 엔드포인트가 인증 없이 노출됩니다.
+- **API Key**: 에이전트에 반드시 `AGENT_API_KEY`를 설정하세요. 형식 제한은 없으며 원하는 문자열을 자유롭게 지정하면 됩니다. 미설정 시 모든 엔드포인트가 인증 없이 노출됩니다.
 - **방화벽**: 에이전트 포트(기본 15119)는 중앙 서버에서만 접근 가능하도록 방화벽을 설정하세요.
 - **agents.json 보호**: API Key가 평문으로 저장되므로, 파일 권한을 적절히 설정하세요 (`chmod 600 agents.json`).
 - **HTTPS**: 프로덕션 환경에서는 리버스 프록시(Nginx 등)로 HTTPS를 적용하는 것을 권장합니다.
@@ -968,7 +968,7 @@ npm run test:watch
 | `AGENT_HOST` | string | `0.0.0.0` | 바인딩 호스트 주소 |
 | `AGENT_MODE` | string | `simulation` | 동작 모드. `simulation` 또는 `capture` |
 | `AGENT_INTERFACE` | string | `eth0` | 패킷 캡처 네트워크 인터페이스 |
-| `AGENT_API_KEY` | string | (빈 문자열) | Bearer 토큰 인증 키. 미설정 시 인증 비활성 |
+| `AGENT_API_KEY` | string | (빈 문자열) | Bearer 토큰 인증 키. 형식 제한 없이 자유롭게 지정. 미설정 시 인증 비활성 |
 | `AGENT_BUFFER_CAPACITY` | number | `100000` | Ring Buffer 최대 이벤트 수 |
 | `AGENT_LOG_LEVEL` | string | `info` | 로그 레벨 (`info` / `debug`) |
 
