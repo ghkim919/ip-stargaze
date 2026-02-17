@@ -30,6 +30,12 @@ sudo MODE=capture INTERFACE=en0 node src/server/index.js
 
 Open **http://localhost:15118** in your browser.
 
+Or use the install script for guided setup:
+
+```bash
+bash install.sh          # Interactive (server / agent / both)
+```
+
 ## Distributed Monitoring
 
 Deploy a lightweight agent on each remote server:
@@ -138,6 +144,10 @@ src/
 npm test          # Run all 98 tests
 npm run test:watch  # Watch mode
 ```
+
+## Documentation
+
+- [사용자 매뉴얼 (User Manual)](docs/USER-MANUAL.md)
 
 ## License
 
