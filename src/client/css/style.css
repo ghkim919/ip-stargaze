@@ -785,7 +785,6 @@ input[type="range"]:disabled {
   align-items: center;
   gap: 8px;
   font-size: 12px;
-  overflow-x: auto;
 }
 
 /* Window Badge */
@@ -823,6 +822,13 @@ input[type="range"]:disabled {
   color: var(--text-secondary);
   font-weight: 600;
   white-space: nowrap;
+}
+
+#top-subnets {
+  display: flex;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .top-subnet-item {
