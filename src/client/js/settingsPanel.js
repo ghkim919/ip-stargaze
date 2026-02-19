@@ -10,6 +10,7 @@ const DEFAULTS = {
   LINK_WIDTH_MAX: 4,
   LINK_OPACITY: 0.5,
   LABEL_FONT_SIZE: 11,
+  LINK_LABEL_FONT_SIZE: 9,
   GLOW_ENABLED: true,
   GLOW_OPACITY_HIGH: 0.6,
   RIPPLE_ENABLED: true,
@@ -42,6 +43,7 @@ const SETTING_GROUPS = [
     label: 'Label',
     items: [
       { key: 'LABEL_FONT_SIZE', label: 'Font Size', type: 'range', min: 8, max: 28, step: 1, unit: 'px', desc: 'Text size of subnet labels on nodes' },
+      { key: 'LINK_LABEL_FONT_SIZE', label: 'Link Label Size', type: 'range', min: 6, max: 24, step: 1, unit: 'px', desc: 'Text size of packet count labels on links' },
     ],
   },
   {

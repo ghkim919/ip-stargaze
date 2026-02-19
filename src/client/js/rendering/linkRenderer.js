@@ -32,7 +32,7 @@ export function renderLinkLabels(linkLabelsGroup, linksData, highlight) {
   const llEnter = ll.enter()
     .append('text')
     .attr('class', 'link-label')
-    .attr('font-size', '9px')
+    .attr('font-size', VISUAL_CONFIG.LINK_LABEL_FONT_SIZE + 'px')
     .attr('text-anchor', 'middle')
     .attr('dominant-baseline', 'middle')
     .attr('fill', getCssVar('--text-secondary'))

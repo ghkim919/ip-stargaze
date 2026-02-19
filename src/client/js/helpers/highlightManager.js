@@ -41,9 +41,10 @@ export default class HighlightManager {
   }
 
   getLinkLabelFontSize(link) {
-    if (!this.#hoveredNodeId) return '9px';
+    const base = VISUAL_CONFIG.LINK_LABEL_FONT_SIZE + 'px';
+    if (!this.#hoveredNodeId) return base;
     const tid = getLinkTargetId(link);
-    return tid === this.#hoveredNodeId ? VISUAL_CONFIG.HIGHLIGHT_FONT_SIZE : '9px';
+    return tid === this.#hoveredNodeId ? VISUAL_CONFIG.HIGHLIGHT_FONT_SIZE : base;
   }
 
   getLinkLabelFontWeight(link) {

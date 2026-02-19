@@ -51,6 +51,33 @@ function createClusterForce(getHubNode, getCenterX, getCenterY) {
       node.vy += (center.y - node.y) * VISUAL_CONFIG.CLUSTER_ATTRACT_STRENGTH * alpha;
     }
 
+    // 3b. 클러스터 내부 pairwise 응집력 — charge 반발을 상쇄하여 뭉침
+    const clusterMembers = new Map();
+    for (const node of nodes) {
+      if (node.isHub || !node.parentNetwork || node.fx != null) continue;
+      if (!clusterMembers.has(node.parentNetwork)) {
+        clusterMembers.set(node.parentNetwork, []);
+      }
+      clusterMembers.get(node.parentNetwork).push(node);
+    }
+    for (const members of clusterMembers.values()) {
+      if (members.length < 2) continue;
+      for (let i = 0; i < members.length; i++) {
+        for (let j = i + 1; j < members.length; j++) {
+          const a = members[i];
+          const b = members[j];
+          const dx = b.x - a.x;
+          const dy = b.y - a.y;
+          const dist = Math.hypot(dx, dy) || 1;
+          const pull = VISUAL_CONFIG.CLUSTER_COHESION_STRENGTH * alpha / dist;
+          a.vx += dx * pull;
+          a.vy += dy * pull;
+          b.vx -= dx * pull;
+          b.vy -= dy * pull;
+        }
+      }
+    }
+
     // 4. 타 클러스터와의 반발력
     for (const node of nodes) {
       if (node.isHub || node.fx != null) continue;
