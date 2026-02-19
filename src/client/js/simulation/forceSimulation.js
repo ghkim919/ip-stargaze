@@ -11,8 +11,9 @@ function createClusterForce(getHubNode, getCenterX, getCenterY) {
     const clusterCounts = new Map();
     const clusterRadii = new Map();
 
+    // 1. 클러스터 중심 계산 — 드래그 중인 노드(fx != null) 제외
     for (const node of nodes) {
-      if (node.isHub || !node.parentNetwork) continue;
+      if (node.isHub || !node.parentNetwork || node.fx != null) continue;
       const key = node.parentNetwork;
       if (!clusterCenters.has(key)) {
         clusterCenters.set(key, { x: 0, y: 0 });
@@ -30,26 +31,29 @@ function createClusterForce(getHubNode, getCenterX, getCenterY) {
       center.y /= count;
     }
 
+    // 2. 클러스터 반경 계산 — 드래그 중인 노드 제외
     for (const [key, center] of clusterCenters) {
       let maxDist = 0;
       for (const node of nodes) {
-        if (node.isHub || node.parentNetwork !== key) continue;
+        if (node.isHub || node.parentNetwork !== key || node.fx != null) continue;
         const dist = Math.hypot(node.x - center.x, node.y - center.y) + (node.radius || VISUAL_CONFIG.MIN_RADIUS);
         if (dist > maxDist) maxDist = dist;
       }
       clusterRadii.set(key, maxDist + VISUAL_CONFIG.CLUSTER_RADIUS_PADDING);
     }
 
+    // 3. 클러스터 내부 인력 — 드래그 중인 노드에는 힘 미적용
     for (const node of nodes) {
-      if (node.isHub || !node.parentNetwork) continue;
+      if (node.isHub || !node.parentNetwork || node.fx != null) continue;
       const center = clusterCenters.get(node.parentNetwork);
       if (!center) continue;
       node.vx += (center.x - node.x) * VISUAL_CONFIG.CLUSTER_ATTRACT_STRENGTH * alpha;
       node.vy += (center.y - node.y) * VISUAL_CONFIG.CLUSTER_ATTRACT_STRENGTH * alpha;
     }
 
+    // 4. 타 클러스터와의 반발력
     for (const node of nodes) {
-      if (node.isHub) continue;
+      if (node.isHub || node.fx != null) continue;
       for (const [key, center] of clusterCenters) {
         if (node.parentNetwork === key) continue;
         const dx = node.x - center.x;
@@ -65,6 +69,7 @@ function createClusterForce(getHubNode, getCenterX, getCenterY) {
       }
     }
 
+    // 5. 허브로부터 클러스터 밀어내기
     const hub = getHubNode();
     const hubX = hub ? hub.x : getCenterX();
     const hubY = hub ? hub.y : getCenterY();
@@ -77,13 +82,14 @@ function createClusterForce(getHubNode, getCenterX, getCenterY) {
       if (dist < minDistFromHub) {
         const push = VISUAL_CONFIG.HUB_PUSH_STRENGTH * alpha * (minDistFromHub - dist) / dist;
         for (const node of nodes) {
-          if (node.isHub || node.parentNetwork !== key) continue;
+          if (node.isHub || node.parentNetwork !== key || node.fx != null) continue;
           node.vx += dx * push;
           node.vy += dy * push;
         }
       }
     }
 
+    // 6. 클러스터 간 분리
     const clusterKeys = Array.from(clusterCenters.keys());
     for (let i = 0; i < clusterKeys.length; i++) {
       for (let j = i + 1; j < clusterKeys.length; j++) {
@@ -99,7 +105,7 @@ function createClusterForce(getHubNode, getCenterX, getCenterY) {
         if (dist < minDist) {
           const pushForce = VISUAL_CONFIG.CLUSTER_SEPARATION_PUSH_FORCE * alpha * (minDist - dist) / dist;
           for (const node of nodes) {
-            if (node.isHub) continue;
+            if (node.isHub || node.fx != null) continue;
             if (node.parentNetwork === clusterKeys[i]) {
               node.vx -= dx * pushForce;
               node.vy -= dy * pushForce;
