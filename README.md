@@ -4,6 +4,10 @@ Real-time IP traffic monitoring tool that visualizes network packets as an inter
 
 Incoming packets are captured via `tcpdump` (or simulated), classified by subnet, and rendered as a force-directed star graph where node size reflects traffic volume. Supports distributed monitoring across multiple servers via a lightweight agent-collector architecture.
 
+## Demo
+
+![IP Stargaze Demo](docs/demo.gif)
+
 ## Features
 
 - **Live Capture** - Real-time packet capture via `tcpdump` (sudo required)
