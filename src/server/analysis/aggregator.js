@@ -1,6 +1,6 @@
-import { classifyIp, getSubnetKey } from './ipClassifier.js';
+import { classifyIp } from './ipClassifier.js';
 import config from '../config.js';
-import { WINDOW_DURATIONS_MS, SUBNET_PARENT_MAP, AGGREGATOR_DEFAULTS, PORT_LABELS } from '../config/constants.js';
+import { WINDOW_DURATIONS_MS, SUBNET_PARENT_MAP, AGGREGATOR_DEFAULTS, PORT_LABELS, LIMITS } from '../config/constants.js';
 
 export default class Aggregator {
   #events = [];
@@ -43,7 +43,7 @@ export default class Aggregator {
 
   setMaxNodes(value) {
     const n = parseInt(value, 10);
-    if (n >= 5 && n <= 200) {
+    if (n >= LIMITS.MAX_NODES_MIN && n <= LIMITS.MAX_NODES_MAX) {
       this.#maxNodes = n;
     }
   }

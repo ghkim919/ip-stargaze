@@ -1,4 +1,5 @@
 import ClockSync from './clockSync.js';
+import { REMOTE_DEFAULTS } from '../config/constants.js';
 
 const HEALTH_WINDOW = 3;
 const MIN_BACKOFF_MS = 2000;
@@ -13,10 +14,11 @@ export default class AgentConnection {
   #clockSync = new ClockSync();
   #recentResults = [];
   #consecutiveFailures = 0;
+  #lastPollTime = 0;
   #timeoutMs;
   #maxEventsPerPoll;
 
-  constructor({ id, url, apiKey, label = '' }, { timeoutMs = 5000, maxEventsPerPoll = 10_000 } = {}) {
+  constructor({ id, url, apiKey, label = '' }, { timeoutMs = REMOTE_DEFAULTS.POLLING_TIMEOUT_MS, maxEventsPerPoll = REMOTE_DEFAULTS.MAX_EVENTS_PER_POLL } = {}) {
     this.#agentId = id;
     this.#url = url.replace(/\/+$/, '');
     this.#apiKey = apiKey;
@@ -58,7 +60,12 @@ export default class AgentConnection {
     return this.#clockSync.offset;
   }
 
+  get lastPollTime() {
+    return this.#lastPollTime;
+  }
+
   async poll() {
+    this.#lastPollTime = Date.now();
     const localSendTime = Date.now();
     const url = `${this.#url}/api/events?since=${this.#lastSeq}&limit=${this.#maxEventsPerPoll}`;
 
@@ -125,19 +132,20 @@ export default class AgentConnection {
     }
   }
 
-  #recordSuccess() {
-    this.#recentResults.push(true);
+  #recordResult(success) {
+    this.#recentResults.push(success);
     if (this.#recentResults.length > HEALTH_WINDOW) {
       this.#recentResults.shift();
     }
+  }
+
+  #recordSuccess() {
+    this.#recordResult(true);
     this.#consecutiveFailures = 0;
   }
 
   #recordFailure() {
-    this.#recentResults.push(false);
-    if (this.#recentResults.length > HEALTH_WINDOW) {
-      this.#recentResults.shift();
-    }
+    this.#recordResult(false);
     this.#consecutiveFailures++;
   }
 

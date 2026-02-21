@@ -2,7 +2,6 @@ export const MSG = {
   SET_WINDOW: 'setWindow',
   SET_SUBNET_LEVEL: 'setSubnetLevel',
   SET_SCENARIO: 'setScenario',
-  SET_EPS: 'setEventsPerSecond',
   SET_EVENTS_PER_SECOND: 'setEventsPerSecond',
   SET_FILTER: 'setFilter',
   SET_INTERFACE: 'setInterface',

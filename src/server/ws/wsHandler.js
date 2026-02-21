@@ -1,5 +1,5 @@
 import config from '../config.js';
-import { VALIDATION_RULES } from '../config/constants.js';
+import { VALIDATION_RULES, LIMITS } from '../config/constants.js';
 import { MESSAGE_TYPES, ERROR_MESSAGES } from '../../shared/protocol.js';
 import { validateWindow, validateSubnetLevel, validateScenario, validateEPS, parseEPS, validateFilter, validateInterface, getAvailableInterfaces, validateSource, validateAgentAdd, validateAgentRemove, validateAgentEnabled, validateAgentTest } from './messageValidator.js';
 
@@ -117,12 +117,12 @@ export default class WsHandler {
 
       case MESSAGE_TYPES.SET_MAX_NODES: {
         const n = parseInt(msg.value, 10);
-        if (n >= 5 && n <= 200) {
+        if (n >= LIMITS.MAX_NODES_MIN && n <= LIMITS.MAX_NODES_MAX) {
           const agg = this.#getAggregatorForClient(socket);
           agg.setMaxNodes(n);
           this.#broadcastConfig();
         } else {
-          this.#send(socket, { type: MESSAGE_TYPES.ERROR, data: { message: 'Max nodes must be between 5 and 200' } });
+          this.#send(socket, { type: MESSAGE_TYPES.ERROR, data: { message: `Max nodes must be between ${LIMITS.MAX_NODES_MIN} and ${LIMITS.MAX_NODES_MAX}` } });
         }
         break;
       }

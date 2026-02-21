@@ -1,4 +1,5 @@
 import { EventEmitter } from 'node:events';
+import { LIMITS } from '../config/constants.js';
 
 const PROTOCOLS = ['TCP', 'UDP', 'ICMP'];
 const COMMON_PORTS = [80, 443, 22, 53, 8080, 3306, 5432, 6379, 27017, 25, 110, 143, 993, 995, 21, 3389];
@@ -106,7 +107,7 @@ export default class Simulator extends EventEmitter {
   }
 
   setEventsPerSecond(eps) {
-    this.#eventsPerSecond = Math.max(1, Math.min(1000, eps));
+    this.#eventsPerSecond = Math.max(LIMITS.EPS_MIN, Math.min(LIMITS.EPS_MAX, eps));
   }
 
   start() {

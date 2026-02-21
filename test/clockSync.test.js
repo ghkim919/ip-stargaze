@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import ClockSync from '../src/server/remote/clockSync.js';
 
 describe('ClockSync', () => {
@@ -93,14 +93,12 @@ describe('ClockSync', () => {
   });
 
   it('warns for large offsets (> 30s)', () => {
-    const warnSpy = [];
-    const origWarn = console.warn;
-    console.warn = (...args) => warnSpy.push(args.join(' '));
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     clockSync.update({ localSendTime: 0, localRecvTime: 100, serverTimestamp: 50_000 });
-    expect(warnSpy.length).toBe(1);
-    expect(warnSpy[0]).toContain('Large clock offset');
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    expect(warnSpy.mock.calls[0].join(' ')).toContain('Large clock offset');
 
-    console.warn = origWarn;
+    warnSpy.mockRestore();
   });
 });

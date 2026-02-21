@@ -137,24 +137,24 @@ function renderProtocolDetailCards(protocolDetail) {
   `;
 }
 
-function renderTopIps(topIps, uniqueIps, totalCount) {
-  if (!topIps || topIps.length === 0) return '';
-
-  const ips = detailData ? detailData.allIps : topIps;
-  const title = detailData ? 'All IPs' : 'Top IPs';
-
-  const rowsHtml = ips
-    .map((ip) => {
-      const pct = totalCount > 0 ? ((ip.count / totalCount) * 100).toFixed(1) : 0;
-      return `
+function renderIpRow(ip, totalCount) {
+  const pct = totalCount > 0 ? ((ip.count / totalCount) * 100).toFixed(1) : 0;
+  return `
         <div class="detail-ip-row">
           <div class="detail-ip-bar" style="width:${pct}%"></div>
           <span class="detail-ip-addr">${ip.ip}</span>
           <span class="detail-ip-count">${formatNumber(ip.count)}</span>
           <span class="detail-ip-pct">${formatPercent(ip.count, totalCount)}</span>
         </div>`;
-    })
-    .join('');
+}
+
+function renderTopIps(topIps, uniqueIps, totalCount) {
+  if (!topIps || topIps.length === 0) return '';
+
+  const ips = detailData ? detailData.allIps : topIps;
+  const title = detailData ? 'All IPs' : 'Top IPs';
+
+  const rowsHtml = ips.map((ip) => renderIpRow(ip, totalCount)).join('');
 
   let footerHtml = '';
   if (!detailData) {
@@ -267,21 +267,9 @@ function renderExtendedSections() {
       divider.parentElement.insertBefore(fragment, divider);
     }
 
-    const snapshotData = ipList ? null : null;
     if (ipList && detailData) {
       const totalCount = detailData.allIps.reduce((sum, ip) => sum + ip.count, 0);
-      const rowsHtml = detailData.allIps
-        .map((ip) => {
-          const pct = totalCount > 0 ? ((ip.count / totalCount) * 100).toFixed(1) : 0;
-          return `
-            <div class="detail-ip-row">
-              <div class="detail-ip-bar" style="width:${pct}%"></div>
-              <span class="detail-ip-addr">${ip.ip}</span>
-              <span class="detail-ip-count">${formatNumber(ip.count)}</span>
-              <span class="detail-ip-pct">${formatPercent(ip.count, totalCount)}</span>
-            </div>`;
-        })
-        .join('');
+      const rowsHtml = detailData.allIps.map((ip) => renderIpRow(ip, totalCount)).join('');
 
       const countEl = ipHeader.querySelector('.detail-section-count');
       const titleEl = ipHeader.querySelector('.detail-section-title');

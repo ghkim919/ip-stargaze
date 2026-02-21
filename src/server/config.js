@@ -1,4 +1,4 @@
-import { AGGREGATOR_DEFAULTS } from './config/constants.js';
+import { AGGREGATOR_DEFAULTS, REMOTE_DEFAULTS } from './config/constants.js';
 
 const config = {
   mode: process.env.MODE || 'simulation',
@@ -16,11 +16,10 @@ const config = {
   validScenarios: ['normal', 'attack', 'scan'],
 
   agentsFilePath: process.env.AGENTS_FILE || './agents.json',
-  defaultPollingIntervalMs: parseInt(process.env.POLLING_INTERVAL, 10) || 2000,
-  pollingTimeoutMs: parseInt(process.env.POLLING_TIMEOUT, 10) || 5000,
-  maxEventsPerPoll: parseInt(process.env.MAX_EVENTS_PER_POLL, 10) || 10_000,
-  maxAgents: 20,
-  agentHealthThreshold: 3,
+  defaultPollingIntervalMs: parseInt(process.env.POLLING_INTERVAL, 10) || REMOTE_DEFAULTS.POLLING_INTERVAL_MS,
+  pollingTimeoutMs: parseInt(process.env.POLLING_TIMEOUT, 10) || REMOTE_DEFAULTS.POLLING_TIMEOUT_MS,
+  maxEventsPerPoll: parseInt(process.env.MAX_EVENTS_PER_POLL, 10) || REMOTE_DEFAULTS.MAX_EVENTS_PER_POLL,
+  maxAgents: REMOTE_DEFAULTS.MAX_AGENTS,
 };
 
 export default config;

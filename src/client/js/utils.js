@@ -2,14 +2,6 @@ import { getCurrentTheme } from './helpers/themeHelpers.js';
 
 const colorCache = new Map();
 
-const PRIVATE_RANGES = ['10.', '172.16.', '172.17.', '172.18.', '172.19.',
-  '172.20.', '172.21.', '172.22.', '172.23.', '172.24.', '172.25.',
-  '172.26.', '172.27.', '172.28.', '172.29.', '172.30.', '172.31.',
-  '192.168.'];
-
-const KNOWN_SERVICES = ['8.8.', '8.34.', '1.1.', '1.0.', '13.', '52.', '54.',
-  '35.', '34.', '104.', '108.', '172.64.', '173.245.', '198.41.'];
-
 function hashString(str) {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -17,14 +9,6 @@ function hashString(str) {
     hash |= 0;
   }
   return Math.abs(hash);
-}
-
-function isPrivateNetwork(network) {
-  return PRIVATE_RANGES.some(prefix => network.startsWith(prefix));
-}
-
-function isKnownService(network) {
-  return KNOWN_SERVICES.some(prefix => network.startsWith(prefix));
 }
 
 export function getSubnetColor(network) {

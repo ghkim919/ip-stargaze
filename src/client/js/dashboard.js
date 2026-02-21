@@ -71,10 +71,10 @@ function renderTopSubnets(topSubnets, activeSubnets) {
   }
 }
 
-function updateWindowBadge(window) {
+function updateWindowBadge(windowKey) {
   const el = document.getElementById('window-badge');
   if (!el) return;
-  el.textContent = WINDOW_LABELS[window] || WINDOW_LABELS['5m'];
+  el.textContent = WINDOW_LABELS[windowKey] || WINDOW_LABELS['5m'];
 }
 
 function renderProtocolMiniBar(protocols) {

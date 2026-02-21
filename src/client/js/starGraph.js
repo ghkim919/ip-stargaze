@@ -32,7 +32,6 @@ let centerY = 0;
 let onRayClick = null;
 let currentIface = null;
 let simulation = null;
-let selectedNetwork = null;
 const highlight = new HighlightManager();
 const dataManager = new GraphDataManager();
 
@@ -207,7 +206,6 @@ export function update(data) {
     } else {
       highlightNode(d);
     }
-    selectedNetwork = d.network;
     if (onRayClick) onRayClick(d);
   };
 
@@ -241,10 +239,6 @@ export function update(data) {
 
 export function setIface(iface) {
   currentIface = iface;
-}
-
-export function getSelectedNetwork() {
-  return selectedNetwork;
 }
 
 export function setPpsThreshold(value) {

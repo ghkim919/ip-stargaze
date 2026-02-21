@@ -1,5 +1,7 @@
-const DEFAULT_LIMIT = 10_000;
-const MAX_LIMIT = 50_000;
+import { AGENT_DEFAULTS } from '../server/config/constants.js';
+
+const DEFAULT_LIMIT = AGENT_DEFAULTS.DEFAULT_EVENT_LIMIT;
+const MAX_LIMIT = AGENT_DEFAULTS.MAX_EVENT_LIMIT;
 const VERSION = '0.1.0';
 
 function authenticate(request, reply, apiKey) {

@@ -1,7 +1,7 @@
 import AgentConnection from './agentConnection.js';
-import AgentStore from './agentStore.js';
 import Aggregator from '../analysis/aggregator.js';
 import config from '../config.js';
+import { REMOTE_DEFAULTS } from '../config/constants.js';
 
 export default class RemoteCollector {
   #store;
@@ -14,7 +14,7 @@ export default class RemoteCollector {
   #maxAgents;
   #polling = false;
 
-  constructor({ agentStore, pollingIntervalMs = 2000, pollingTimeoutMs = 5000, maxEventsPerPoll = 10_000, maxAgents = 20 }) {
+  constructor({ agentStore, pollingIntervalMs = REMOTE_DEFAULTS.POLLING_INTERVAL_MS, pollingTimeoutMs = REMOTE_DEFAULTS.POLLING_TIMEOUT_MS, maxEventsPerPoll = REMOTE_DEFAULTS.MAX_EVENTS_PER_POLL, maxAgents = REMOTE_DEFAULTS.MAX_AGENTS }) {
     this.#store = agentStore;
     this.#pollingIntervalMs = pollingIntervalMs;
     this.#pollingTimeoutMs = pollingTimeoutMs;
@@ -128,8 +128,8 @@ export default class RemoteCollector {
     if (!conn) return;
 
     if (conn.backoffMs > 0) {
-      const elapsed = Date.now() % conn.backoffMs;
-      if (elapsed > this.#pollingIntervalMs) return;
+      const elapsed = Date.now() - conn.lastPollTime;
+      if (elapsed < conn.backoffMs) return;
     }
 
     const result = await conn.poll();

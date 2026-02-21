@@ -6,16 +6,10 @@ import * as sourceTabBar from './sourceTabBar.js';
 import * as settingsPanel from './settingsPanel.js';
 import { WEBSOCKET_CONFIG } from './config.js';
 import { MESSAGE_TYPES } from '/shared/protocol.js';
+import { PORT_LABELS, LIMITS } from '/shared/constants.js';
 import { isLiveMode } from './helpers/modeHelpers.js';
 import { initThemeToggle } from './helpers/themeHelpers.js';
 import { clearColorCache } from './utils.js';
-
-const PORT_LABELS = {
-  21: 'FTP', 22: 'SSH', 25: 'SMTP', 53: 'DNS',
-  80: 'HTTP', 110: 'POP3', 143: 'IMAP', 443: 'HTTPS',
-  993: 'IMAPS', 995: 'POP3S', 3306: 'MySQL', 3389: 'RDP',
-  5432: 'PgSQL', 6379: 'Redis', 8080: 'Alt-HTTP', 27017: 'MongoDB',
-};
 
 let ws = null;
 let reconnectAttempts = 0;
@@ -236,7 +230,7 @@ function initControls() {
   const epsInput = document.getElementById('eps-input');
   if (epsInput) {
     epsInput.addEventListener('change', () => {
-      const val = Math.max(1, Math.min(500, parseInt(epsInput.value, 10) || 1));
+      const val = Math.max(LIMITS.EPS_MIN, Math.min(LIMITS.EPS_MAX, parseInt(epsInput.value, 10) || LIMITS.EPS_MIN));
       epsInput.value = val;
       send({ type: MESSAGE_TYPES.SET_EVENTS_PER_SECOND, value: String(val) });
     });
@@ -254,7 +248,7 @@ function initControls() {
   const maxNodesInput = document.getElementById('max-nodes-input');
   if (maxNodesInput) {
     maxNodesInput.addEventListener('change', () => {
-      const val = Math.max(5, Math.min(200, parseInt(maxNodesInput.value, 10) || 30));
+      const val = Math.max(LIMITS.MAX_NODES_MIN, Math.min(LIMITS.MAX_NODES_MAX, parseInt(maxNodesInput.value, 10) || LIMITS.MAX_NODES_DEFAULT));
       maxNodesInput.value = val;
       send({ type: MESSAGE_TYPES.SET_MAX_NODES, value: val });
     });

@@ -3,6 +3,7 @@ import { formatNumber, formatPps } from '../utils.js';
 let tooltipEl = null;
 
 export function createTooltip() {
+  if (tooltipEl) return;
   tooltipEl = document.createElement('div');
   tooltipEl.className = 'star-tooltip';
   tooltipEl.style.display = 'none';

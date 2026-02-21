@@ -1,3 +1,5 @@
+import { AGENT_DEFAULTS } from '../server/config/constants.js';
+
 export default class EventBuffer {
   #buffer;
   #capacity;
@@ -5,7 +7,7 @@ export default class EventBuffer {
   #size = 0;
   #nextSeq = 1;
 
-  constructor(capacity = 100_000) {
+  constructor(capacity = AGENT_DEFAULTS.BUFFER_CAPACITY) {
     this.#capacity = Math.max(1, capacity);
     this.#buffer = new Array(this.#capacity);
   }
@@ -41,7 +43,7 @@ export default class EventBuffer {
     return seq;
   }
 
-  getSince(since, limit = 10_000) {
+  getSince(since, limit = AGENT_DEFAULTS.DEFAULT_EVENT_LIMIT) {
     if (this.#size === 0) {
       return { events: [], gapDetected: false };
     }
@@ -74,7 +76,7 @@ export default class EventBuffer {
     return { events, gapDetected };
   }
 
-  getAll(limit = 10_000) {
+  getAll(limit = AGENT_DEFAULTS.DEFAULT_EVENT_LIMIT) {
     return this.getSince(0, limit);
   }
 

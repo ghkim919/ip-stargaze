@@ -9,22 +9,13 @@ function tmpFile() {
   return join(tmpdir(), `agents-rc-test-${Date.now()}-${Math.random().toString(36).slice(2)}.json`);
 }
 
-class MockAggregator {
-  events = [];
-  addEvent(event) {
-    this.events.push(event);
-  }
-}
-
 describe('RemoteCollector', () => {
   let filePath;
   let store;
-  let aggregator;
 
   beforeEach(() => {
     filePath = tmpFile();
     store = new AgentStore(filePath);
-    aggregator = new MockAggregator();
   });
 
   afterEach(() => {
@@ -32,14 +23,14 @@ describe('RemoteCollector', () => {
   });
 
   it('initializes with empty agent list', () => {
-    const collector = new RemoteCollector({ agentStore: store, aggregator });
+    const collector = new RemoteCollector({ agentStore: store });
     expect(collector.getAgents()).toEqual([]);
     collector.destroy();
   });
 
   it('getAgents returns agents without apiKey', () => {
     store.add({ id: 'a1', url: 'http://h:1', apiKey: 'secret', label: 'Test' });
-    const collector = new RemoteCollector({ agentStore: store, aggregator });
+    const collector = new RemoteCollector({ agentStore: store });
     const agents = collector.getAgents();
 
     expect(agents).toHaveLength(1);
@@ -51,7 +42,7 @@ describe('RemoteCollector', () => {
 
   it('removes an agent', () => {
     store.add({ id: 'r1', url: 'http://h:1', apiKey: 'k' });
-    const collector = new RemoteCollector({ agentStore: store, aggregator });
+    const collector = new RemoteCollector({ agentStore: store });
 
     expect(collector.removeAgent('r1')).toBe(true);
     expect(collector.getAgents()).toHaveLength(0);
@@ -61,7 +52,7 @@ describe('RemoteCollector', () => {
 
   it('enables and disables agents', () => {
     store.add({ id: 'e1', url: 'http://h:1', apiKey: 'k', enabled: true });
-    const collector = new RemoteCollector({ agentStore: store, aggregator });
+    const collector = new RemoteCollector({ agentStore: store });
 
     expect(collector.setAgentEnabled('e1', false)).toBe(true);
     const agents = collector.getAgents();
@@ -71,7 +62,7 @@ describe('RemoteCollector', () => {
   });
 
   it('returns false for enabling non-existent agent', () => {
-    const collector = new RemoteCollector({ agentStore: store, aggregator });
+    const collector = new RemoteCollector({ agentStore: store });
     expect(collector.setAgentEnabled('nope', true)).toBe(false);
     collector.destroy();
   });
@@ -79,7 +70,6 @@ describe('RemoteCollector', () => {
   it('respects maxAgents limit', async () => {
     const collector = new RemoteCollector({
       agentStore: store,
-      aggregator,
       maxAgents: 1,
     });
 
@@ -93,7 +83,7 @@ describe('RemoteCollector', () => {
   });
 
   it('start and stop manage polling timer', () => {
-    const collector = new RemoteCollector({ agentStore: store, aggregator });
+    const collector = new RemoteCollector({ agentStore: store });
 
     collector.start();
     collector.stop();
@@ -102,7 +92,7 @@ describe('RemoteCollector', () => {
 
   it('destroy stops and clears connections', () => {
     store.add({ id: 'd1', url: 'http://h:1', apiKey: 'k' });
-    const collector = new RemoteCollector({ agentStore: store, aggregator });
+    const collector = new RemoteCollector({ agentStore: store });
     collector.start();
     collector.destroy();
 
@@ -112,7 +102,6 @@ describe('RemoteCollector', () => {
   it('testAgent handles connection failure', async () => {
     const collector = new RemoteCollector({
       agentStore: store,
-      aggregator,
       pollingTimeoutMs: 500,
     });
 
@@ -127,7 +116,7 @@ describe('RemoteCollector', () => {
     store.add({ id: 'pre1', url: 'http://h:1', apiKey: 'k', enabled: true });
     store.add({ id: 'pre2', url: 'http://h:2', apiKey: 'k', enabled: false });
 
-    const collector = new RemoteCollector({ agentStore: store, aggregator });
+    const collector = new RemoteCollector({ agentStore: store });
     const agents = collector.getAgents();
 
     const pre1 = agents.find((a) => a.id === 'pre1');

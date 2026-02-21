@@ -1,3 +1,7 @@
+import { PORT_LABELS, LIMITS } from '../../shared/constants.js';
+
+export { PORT_LABELS, LIMITS };
+
 export const WINDOW_DURATIONS_MS = {
   '1m': 60_000,
   '5m': 300_000,
@@ -11,8 +15,8 @@ export const SUBNET_PARENT_MAP = {
 };
 
 export const VALIDATION_RULES = {
-  EPS_MIN: 1,
-  EPS_MAX: 1000,
+  EPS_MIN: LIMITS.EPS_MIN,
+  EPS_MAX: LIMITS.EPS_MAX,
   PORT_MIN: 1,
   PORT_MAX: 65535,
   VALID_PROTOCOLS: ['TCP', 'UDP', 'ICMP'],
@@ -26,21 +30,15 @@ export const AGGREGATOR_DEFAULTS = {
   TOP_PORTS_COUNT: 5,
 };
 
-export const PORT_LABELS = {
-  21: 'FTP',
-  22: 'SSH',
-  25: 'SMTP',
-  53: 'DNS',
-  80: 'HTTP',
-  110: 'POP3',
-  143: 'IMAP',
-  443: 'HTTPS',
-  993: 'IMAPS',
-  995: 'POP3S',
-  3306: 'MySQL',
-  3389: 'RDP',
-  5432: 'PostgreSQL',
-  6379: 'Redis',
-  8080: 'HTTP-Alt',
-  27017: 'MongoDB',
+export const REMOTE_DEFAULTS = {
+  POLLING_INTERVAL_MS: 2000,
+  POLLING_TIMEOUT_MS: 5000,
+  MAX_EVENTS_PER_POLL: 10_000,
+  MAX_AGENTS: 20,
+};
+
+export const AGENT_DEFAULTS = {
+  BUFFER_CAPACITY: 100_000,
+  DEFAULT_EVENT_LIMIT: 10_000,
+  MAX_EVENT_LIMIT: 50_000,
 };

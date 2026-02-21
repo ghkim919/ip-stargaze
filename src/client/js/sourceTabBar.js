@@ -19,10 +19,6 @@ export function init(send, openAgentPanel) {
   }
 }
 
-export function getSelectedSource() {
-  return selectedSource;
-}
-
 export function updateAgents(agentList) {
   if (!agentList) return;
   agents = agentList;

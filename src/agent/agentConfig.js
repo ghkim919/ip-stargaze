@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { hostname } from 'node:os';
+import { AGENT_DEFAULTS } from '../server/config/constants.js';
 
 const CONFIG_FILE = 'agent.config.json';
 
@@ -24,7 +25,7 @@ function buildConfig() {
     mode: process.env.AGENT_MODE || file.mode || 'simulation',
     interface: process.env.AGENT_INTERFACE || file.interface || 'eth0',
     apiKey: process.env.AGENT_API_KEY || file.apiKey || '',
-    bufferCapacity: parseInt(process.env.AGENT_BUFFER_CAPACITY, 10) || file.bufferCapacity || 100_000,
+    bufferCapacity: parseInt(process.env.AGENT_BUFFER_CAPACITY, 10) || file.bufferCapacity || AGENT_DEFAULTS.BUFFER_CAPACITY,
     logLevel: process.env.AGENT_LOG_LEVEL || file.logLevel || 'info',
   };
 }
